@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Отиёт">
-  <link rel="manifest" href="manifest.json?v=8">
+  <link rel="manifest" href="manifest.json?v=9">
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=8">
+  <link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
   <div id="app" class="app-container">
@@ -163,6 +163,12 @@
           </div>
           <button class="close-btn" id="btn-close-list">&times;</button>
         </div>
+        <div class="modal-toolbar">
+          <button id="btn-open-bulk-from-list" class="btn secondary-btn small-btn" type="button" style="width: 100%; justify-content: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            <span>📋 Загрузить список из Excel / таблицы</span>
+          </button>
+        </div>
         <div class="modal-body list-body" id="cards-list-container">
           <!-- Список карточек -->
         </div>
@@ -177,6 +183,10 @@
           <button class="close-btn" id="btn-close-form">&times;</button>
         </div>
         <form class="modal-body form-body" id="card-editor-form">
+          <div class="form-banner-tip" id="form-banner-tip">
+            <span>Нужно добавить много молитв сразу?</span>
+            <button type="button" id="btn-switch-to-bulk" class="link-btn">Загрузить из таблицы (Excel) &rarr;</button>
+          </div>
           <input type="hidden" id="field-card-id">
 
           <div class="form-group">
@@ -246,11 +256,11 @@
     <div class="modal-backdrop" id="modal-settings" style="display:none;">
       <div class="modal-sheet">
         <div class="modal-header">
-          <h2>Настройки & Резервная копия</h2>
+          <h2>Настройки & Каталог</h2>
           <button class="close-btn" id="btn-close-settings">&times;</button>
         </div>
         <div class="modal-body settings-body">
-          <p class="settings-desc">Все карточки хранятся строго в памяти вашего телефона (LocalStorage). Никто посторонний не видит ваши данные.</p>
+          <p class="settings-desc">Все карточки хранятся в памяти вашего устройства (LocalStorage). Никто посторонний не имеет доступа к вашим данным.</p>
           
           <div class="settings-actions">
             <button id="btn-pwa-install" class="btn primary-btn" style="display:none; background: linear-gradient(135deg, #d4af37, #f59e0b); color: #000; font-weight: 700; justify-content: center; gap: 8px;">
@@ -258,25 +268,50 @@
               <span>Установить приложение на телефон</span>
             </button>
 
-            <button id="btn-sync-repo" class="btn primary-btn" style="background: linear-gradient(135deg, #4f46e5, #6366f1); justify-content: center; gap: 8px;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-              <span>Обновить базу из GitHub</span>
-            </button>
+            <!-- Блок 1: Массовое добавление -->
+            <div class="settings-section">
+              <div class="settings-section-title">Массовое добавление</div>
+              <button id="btn-open-bulk" class="btn primary-btn" style="background: linear-gradient(135deg, #10b981, #059669); justify-content: center; gap: 8px; width: 100%;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                <span>Загрузить из таблицы (Excel / текст)</span>
+              </button>
+              <p class="settings-hint">Скопируйте ячейки из Excel / Google Таблиц или загрузите файл со списком молитв</p>
+            </div>
 
-            <button id="btn-export-json" class="btn secondary-btn">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-              Скачать резервную копию (JSON)
-            </button>
-            
-            <label class="btn secondary-btn file-input-label">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-              Восстановить из файла
-              <input type="file" id="btn-import-json" accept=".json" style="display:none;">
-            </label>
+            <!-- Блок 2: Общий каталог -->
+            <div class="settings-section">
+              <div class="settings-section-title">Общий каталог молитв</div>
+              <button id="btn-sync-repo" class="btn primary-btn" style="background: linear-gradient(135deg, #4f46e5, #6366f1); justify-content: center; gap: 8px; width: 100%;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                <span>Обновить карточки из общего каталога</span>
+              </button>
+              <p class="settings-hint">Загрузит новые официальные молитвы, сохраняя все ваши личные карточки</p>
 
-            <button id="btn-reset-default" class="btn danger-outline-btn">
-              Восстановить стандартные карточки
-            </button>
+              <button id="btn-export-catalog" class="btn secondary-btn" style="width: 100%; justify-content: center; gap: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <span>Сохранить файл каталога (prayers.json)</span>
+              </button>
+              <p class="settings-hint">Скачать файл, чтобы передать администратору для добавления в общий каталог</p>
+            </div>
+
+            <!-- Блок 3: Личная резервная копия -->
+            <div class="settings-section">
+              <div class="settings-section-title">Личная копия</div>
+              <button id="btn-export-json" class="btn secondary-btn" style="width: 100%; justify-content: center; gap: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <span>Скачать личную копию (JSON)</span>
+              </button>
+              
+              <label class="btn secondary-btn file-input-label" style="width: 100%; justify-content: center; gap: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                <span>Восстановить личную копию из файла</span>
+                <input type="file" id="btn-import-json" accept=".json" style="display:none;">
+              </label>
+
+              <button id="btn-reset-default" class="btn danger-outline-btn" style="width: 100%; justify-content: center;">
+                Восстановить стандартные карточки
+              </button>
+            </div>
           </div>
 
           <div class="info-box">
@@ -287,8 +322,86 @@
       </div>
     </div>
 
+    <!-- МОДАЛЬНОЕ ОКНО: МАССОВАЯ ЗАГРУЗКА ИЗ ТАБЛИЦЫ (EXCEL) -->
+    <div class="modal-backdrop" id="modal-bulk-import" style="display:none;">
+      <div class="modal-sheet bulk-sheet">
+        <div class="modal-header">
+          <div>
+            <h2>Загрузка из таблицы</h2>
+            <p class="modal-subtitle">Вставка строк из Excel / Google Таблиц или загрузка файла</p>
+          </div>
+          <button class="close-btn" id="btn-close-bulk">&times;</button>
+        </div>
+        <div class="modal-body bulk-body">
+          
+          <div class="bulk-guide-card">
+            <div class="guide-title">
+              <span class="guide-icon">📋</span>
+              <span><strong>Порядок столбцов в таблице:</strong></span>
+            </div>
+            
+            <div class="table-columns-pills">
+              <span class="col-pill">1. Категория</span>
+              <span class="col-pill">2. Название</span>
+              <span class="col-pill">3. Иврит</span>
+              <span class="col-pill">4. Транскрипция</span>
+              <span class="col-pill">5. Перевод</span>
+              <span class="col-pill col-optional">6. Пояснение <i>(опционально)</i></span>
+            </div>
+            <p class="guide-note">💡 <em>Программа сама поймет колонки, даже если они перепутаны или в первой строке есть заголовки!</em></p>
+
+            <div class="bulk-quick-tools">
+              <button type="button" id="btn-download-template" class="btn small-action-btn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <span>Скачать образец таблицы (.csv для Excel)</span>
+              </button>
+
+              <label class="btn small-action-btn file-input-label">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>
+                <span>Выбрать файл (.xlsx, .csv, .txt)</span>
+                <input type="file" id="input-bulk-file" accept=".xlsx,.xls,.csv,.txt,.tsv" style="display:none;">
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 6px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label for="bulk-text-input" style="margin-bottom: 0;"><strong>Вставьте скопированный текст из Excel сюда:</strong></label>
+              <button type="button" id="btn-bulk-clear" class="small-text-btn" style="display:none;">Очистить</button>
+            </div>
+            <textarea id="bulk-text-input" class="bulk-textarea" rows="6" placeholder="Выделите ячейки в Excel, нажмите Ctrl+C, затем кликните сюда и нажмите Ctrl+V..."></textarea>
+          </div>
+
+          <!-- Блок результатов распознавания -->
+          <div id="bulk-preview-area" class="bulk-preview-area" style="display:none;">
+            <div class="preview-header">
+              <span id="bulk-preview-count" class="preview-badge">Распознано: 0 карточек</span>
+              <span class="preview-sub">Предпросмотр перед добавлением:</span>
+            </div>
+            <div id="bulk-preview-list" class="bulk-preview-cards">
+              <!-- Сюда добавляются превью карточек -->
+            </div>
+          </div>
+
+          <!-- Кнопки действий -->
+          <div class="bulk-bottom-actions">
+            <button type="button" id="btn-bulk-apply-add" class="btn primary-btn" style="background: linear-gradient(135deg, #10b981, #059669); font-weight: 700; width: 100%; justify-content: center; display:none;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span id="btn-bulk-apply-add-text">Добавить эти карточки в приложение</span>
+            </button>
+            
+            <button type="button" id="btn-bulk-apply-replace" class="btn danger-outline-btn" style="width: 100%; justify-content: center; display:none; font-size: 13px;">
+              Заменить весь список на эти карточки
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <script src="app.js?v=8"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="app.js?v=9"></script>
 </body>
 </html>
