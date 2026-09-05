@@ -188,6 +188,7 @@ const elCardMediaFront = document.getElementById('card-media-front');
 const elBtnPlayAudio = document.getElementById('btn-play-audio');
 const elBtnPlayAudioBack = document.getElementById('btn-play-audio-back');
 const elBtnEditCard = document.getElementById('btn-edit-card');
+const elBtnEditCardBack = document.getElementById('btn-edit-card-back');
 
 // Элементы карточки (Back)
 const elCardBack = document.querySelector('.card-back');
@@ -579,17 +580,30 @@ function handleSaveCard(e) {
   renderCurrentCard();
 }
 
+function deleteCardById(id, title) {
+  if (!id) return;
+  if (confirm(`Вы точно хотите удалить карточку «${title || 'Без названия'}»?`)) {
+    state.cards = state.cards.filter(c => c.id !== id);
+    if (state.cards.length === 0) {
+      state.cards = [...DEFAULT_CARDS];
+    }
+    state.saveCards();
+    if (state.currentIndex >= state.cards.length) {
+      state.currentIndex = Math.max(0, state.cards.length - 1);
+    }
+    renderCategories();
+    renderCurrentCard();
+    renderListViewItems();
+  }
+}
+
 function handleDeleteCard() {
   const id = elFieldId.value;
   if (!id) return;
-  if (confirm('Вы точно хотите удалить эту карточку?')) {
-    state.cards = state.cards.filter(c => c.id !== id);
-    state.saveCards();
-    elModalForm.style.display = 'none';
-    if (state.currentIndex > 0) state.currentIndex--;
-    renderCategories();
-    renderCurrentCard();
-  }
+  const card = state.cards.find(c => c.id === id);
+  const title = card ? card.title : '';
+  deleteCardById(id, title);
+  elModalForm.style.display = 'none';
 }
 
 // Преобразование загружаемых файлов в base64
@@ -687,10 +701,16 @@ function renderListViewItems() {
           🔝
         </button>
         <button class="order-btn btn-up" title="Поднять выше" ${idx === 0 ? 'disabled' : ''}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
         </button>
         <button class="order-btn btn-down" title="Опустить ниже" ${idx === total - 1 ? 'disabled' : ''}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <button class="order-btn btn-edit-item" title="Редактировать карточку">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+        </button>
+        <button class="order-btn btn-delete-item" title="Удалить карточку">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
         </button>
       </div>
     `;
@@ -725,6 +745,20 @@ function renderListViewItems() {
     btnDown.addEventListener('click', (e) => {
       e.stopPropagation();
       moveCard(idx, idx + 1);
+    });
+
+    const btnEditItem = item.querySelector('.btn-edit-item');
+    const btnDeleteItem = item.querySelector('.btn-delete-item');
+
+    btnEditItem.addEventListener('click', (e) => {
+      e.stopPropagation();
+      elModalList.style.display = 'none';
+      openCardEditor(card);
+    });
+
+    btnDeleteItem.addEventListener('click', (e) => {
+      e.stopPropagation();
+      deleteCardById(card.id, card.title);
     });
 
     // Drag and Drop (для мыши и десктопа)
@@ -901,6 +935,13 @@ function setupEventListeners() {
     e.stopPropagation();
     openCardEditor(state.getCurrentCard());
   });
+
+  if (elBtnEditCardBack) {
+    elBtnEditCardBack.addEventListener('click', e => {
+      e.stopPropagation();
+      openCardEditor(state.getCurrentCard());
+    });
+  }
 
   // Модалка списка
   elBtnListView.addEventListener('click', openListView);

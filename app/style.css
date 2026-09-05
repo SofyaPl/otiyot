@@ -715,14 +715,14 @@ body {
 .card-list-order-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   flex-shrink: 0;
 }
 
 .order-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
   border: 1px solid var(--border-color);
   background: var(--bg-card);
   color: var(--text-primary);
@@ -739,6 +739,18 @@ body {
   background: var(--accent);
   color: #000;
   border-color: var(--accent);
+}
+
+.order-btn.btn-edit-item:hover {
+  background: rgba(99, 102, 241, 0.25);
+  color: #818cf8;
+  border-color: #6366f1;
+}
+
+.order-btn.btn-delete-item:hover {
+  background: rgba(239, 68, 68, 0.25);
+  color: #f87171;
+  border-color: #ef4444;
 }
 
 .order-btn:active:not(:disabled) {

@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=7">
+  <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
   <div id="app" class="app-container">
@@ -91,9 +91,14 @@
           <div class="card-face card-back">
             <div class="card-header">
               <span class="category-pill back-pill" id="card-back-cat-label">Перевод & Звучание</span>
-              <button class="audio-btn" id="btn-play-audio-back" title="Прослушать произношение">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-              </button>
+              <div class="header-right-btns">
+                <button class="audio-btn" id="btn-play-audio-back" title="Прослушать произношение">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                </button>
+                <button class="edit-btn" id="btn-edit-card-back" title="Редактировать карточку">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                </button>
+              </div>
             </div>
 
             <div class="back-scroll-content">
@@ -284,6 +289,6 @@
 
   </div>
 
-  <script src="app.js?v=7"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>
