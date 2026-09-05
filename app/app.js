@@ -302,6 +302,7 @@ const elBtnDeleteCardAction = document.getElementById('btn-delete-card-action');
 const elFormModalTitle = document.getElementById('form-modal-title');
 const elFieldAudioUrl = document.getElementById('field-audio-url');
 const elFieldAudioFilename = document.getElementById('field-audio-filename');
+const elFieldImageFilename = document.getElementById('field-image-filename');
 
 // Настройки
 const elBtnExportJson = document.getElementById('btn-export-json');
@@ -813,6 +814,7 @@ function openCardEditor(card = null) {
   if (elFieldImageFile) elFieldImageFile.value = '';
   if (elFieldAudioUrl) elFieldAudioUrl.value = '';
   if (elFieldAudioFilename) elFieldAudioFilename.textContent = '';
+  if (elFieldImageFilename) elFieldImageFilename.textContent = '';
 
   if (card) {
     elFormModalTitle.textContent = 'Редактировать карточку';
@@ -844,11 +846,12 @@ function openCardEditor(card = null) {
       tempImageData = card.image;
       elImagePreview.src = card.image;
       elImagePreviewBox.style.display = 'block';
+      if (elFieldImageFilename) elFieldImageFilename.textContent = 'Прикреплено изображение';
     } else {
       elImagePreviewBox.style.display = 'none';
     }
 
-    elBtnDeleteCardAction.style.display = 'block';
+    elBtnDeleteCardAction.style.display = 'inline-flex';
   } else {
     elFormModalTitle.textContent = 'Новая карточка';
     elCardForm.reset();
@@ -984,6 +987,7 @@ function setupFileInputs() {
     elFieldImageFile.addEventListener('change', e => {
       const file = e.target.files[0];
       if (!file) return;
+      if (elFieldImageFilename) elFieldImageFilename.textContent = file.name;
       const reader = new FileReader();
       reader.onload = ev => {
         tempImageData = ev.target.result;
@@ -998,6 +1002,7 @@ function setupFileInputs() {
     elBtnRemoveImage.addEventListener('click', () => {
       tempImageData = '';
       if (elFieldImageFile) elFieldImageFile.value = '';
+      if (elFieldImageFilename) elFieldImageFilename.textContent = '';
       elImagePreviewBox.style.display = 'none';
     });
   }
@@ -2000,7 +2005,7 @@ function setupEventListeners() {
   // Кнопка принудительного обновления и версия
   const elAppVersionBadge = document.getElementById('app-version-badge');
   if (elAppVersionBadge) {
-    elAppVersionBadge.textContent = 'v18';
+    elAppVersionBadge.textContent = 'v19';
   }
 
   const elBtnForceUpdateApp = document.getElementById('btn-force-update-app');
