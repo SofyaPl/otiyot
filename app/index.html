@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Отиёт">
-  <link rel="manifest" href="manifest.json?v=17">
+  <link rel="manifest" href="manifest.json?v=18">
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=17">
+  <link rel="stylesheet" href="style.css?v=18">
 </head>
 <body>
   <div id="app" class="app-container">
@@ -170,7 +170,7 @@
           <button class="close-btn" id="btn-close-list">&times;</button>
         </div>
         <div class="modal-toolbar">
-          <button id="btn-open-bulk-from-list" class="btn secondary-btn small-btn" type="button" style="width: 100%; justify-content: center; gap: 8px;">
+          <button id="btn-open-bulk-from-list" class="btn outline-action-btn outline-gold-btn" type="button" style="min-height: 38px; padding: 8px 12px; font-size: 13px;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
             <span>Загрузить список из Excel / таблицы</span>
           </button>
@@ -312,23 +312,23 @@
                   </button>
                 </div>
                 <p class="settings-hint" id="settings-divine-mode-desc">
-                  <strong>Режим тренировки (активен):</strong> традиционная благочестивая замена Имени. Позволяет спокойно тренироваться в любом месте, в дороге и до омовения рук. Всегда включается при каждом запуске приложения.
+                  <strong style="color:var(--accent-light);">Режим тренировки (активен):</strong> традиционная благочестивая замена Имени. Позволяет спокойно тренироваться в любом месте, в дороге и до омовения рук. Всегда включается при каждом запуске приложения.
                 </p>
               </div>
 
               <div class="speech-rate-box">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                   <span style="font-size:13px; color:var(--text-secondary);">Темп речи для изучения:</span>
-                  <span id="speech-rate-val" style="font-weight:700; color:var(--accent); font-size:14px;">0.70x</span>
+                  <span id="speech-rate-val" style="font-weight:700; color:var(--accent-light); font-size:14px;">0.70x</span>
                 </div>
                 <input type="range" id="speech-rate-slider" min="0.4" max="1.0" step="0.05" value="0.7">
                 <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted);">
                   <span>0.4x (медленно)</span>
-                  <span style="color:var(--accent); font-weight:600;">0.7x (спокойно)</span>
+                  <span style="color:var(--accent-light); font-weight:600;">0.7x (спокойно)</span>
                   <span>1.0x (быстро)</span>
                 </div>
               </div>
-              <button type="button" id="btn-test-speech-rate" class="btn secondary-btn" style="width:100%; margin-top:6px; justify-content:center; gap:6px; font-size:12px; padding:7px 10px;">
+              <button type="button" id="btn-test-speech-rate" class="btn outline-action-btn outline-gold-btn" style="min-height:36px; padding:7px 12px; font-size:12px; margin-top:6px;">
                 <span>🔊 Прослушать пример в этом режиме и темпе</span>
               </button>
               <p class="settings-hint" style="margin-top:6px;">Синтезатор речи встроен в телефон/браузер (Web Speech API). При наличии прикрепленного MP3-файла играет настоящая запись.</p>
@@ -343,14 +343,14 @@
               </button>
               <p class="settings-hint">Скопируйте ячейки из Excel / Google Таблиц со ссылками на аудио или текстом</p>
 
-              <label class="btn secondary-btn file-input-label" style="width: 100%; justify-content: center; gap: 8px;">
+              <label class="btn outline-action-btn outline-gold-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
                 <span>Прикрепить MP3-файлы к карточкам (пачкой)</span>
                 <input type="file" id="input-settings-bulk-audio" multiple accept="audio/*" style="display:none;">
               </label>
               <p class="settings-hint">Выберите файлы (например: Моде ани.mp3, Шеаколь.mp3) — программа прикрепит их к карточкам по названию</p>
 
-              <button id="btn-download-all-audio" class="btn secondary-btn" style="width: 100%; justify-content: center; gap: 8px;">
+              <button id="btn-download-all-audio" class="btn outline-action-btn outline-gold-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                 <span>Скачать аудио по ссылкам в память (офлайн)</span>
               </button>
@@ -366,7 +366,7 @@
               </button>
               <p class="settings-hint">Загрузит новые официальные молитвы, сохраняя все ваши личные карточки</p>
 
-              <button id="btn-export-catalog" class="btn secondary-btn" style="width: 100%; justify-content: center; gap: 8px;">
+              <button id="btn-export-catalog" class="btn outline-action-btn outline-gold-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                 <span>Сохранить файл каталога (prayers.json)</span>
               </button>
@@ -376,21 +376,24 @@
             <!-- Блок 3: Личная резервная копия -->
             <div class="settings-section">
               <div class="settings-section-title">Личная копия</div>
-              <button id="btn-export-json" class="btn secondary-btn" style="width: 100%; justify-content: center; gap: 8px;">
+              <button id="btn-export-json" class="btn outline-action-btn outline-gold-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                 <span>Скачать личную копию (JSON)</span>
               </button>
+              <p class="settings-hint">Сохранит резервный файл со всеми вашими карточками на устройство</p>
               
-              <label class="btn secondary-btn file-input-label" style="width: 100%; justify-content: center; gap: 8px;">
+              <label class="btn outline-action-btn outline-gold-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
                 <span>Восстановить личную копию из файла</span>
                 <input type="file" id="btn-import-json" accept=".json" style="display:none;">
               </label>
+              <p class="settings-hint">Загрузит ваши карточки из ранее сохраненного файла резервной копии</p>
 
               <button id="btn-reset-default" class="btn outline-action-btn outline-danger-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
                 <span>Восстановить стандартные карточки</span>
               </button>
+              <p class="settings-hint" style="margin-bottom:0;">Сбросит все изменения и вернет стандартный набор карточек</p>
             </div>
           </div>
 
@@ -403,9 +406,9 @@
           <div class="settings-version-card">
             <div class="settings-version-info">
               <span class="version-label">Текущая версия программы:</span>
-              <span class="version-badge" id="app-version-badge">v17</span>
+              <span class="version-badge" id="app-version-badge">v18</span>
             </div>
-            <button type="button" id="btn-force-update-app" class="btn secondary-btn small-btn" style="width: 100%; justify-content: center; gap: 6px;">
+            <button type="button" id="btn-force-update-app" class="btn outline-action-btn outline-gold-btn" style="min-height:38px; padding:8px 12px; font-size:13px;">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
               <span>Загрузить свежее обновление</span>
             </button>
@@ -505,6 +508,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="app.js?v=17"></script>
+  <script src="app.js?v=18"></script>
 </body>
 </html>

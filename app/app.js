@@ -591,7 +591,7 @@ function updateSpeechModeUI() {
   // Описание и статус в настройках
   if (elSettingsDivineModeDesc) {
     elSettingsDivineModeDesc.innerHTML = isStudy
-      ? '<strong>Режим тренировки (активен):</strong> традиционная благочестивая замена Имени (А-шем / Элокейну). Позволяет спокойно тренироваться в любом месте, в дороге и до омовения рук. Включается автоматически при каждом открытии приложения.'
+      ? '<strong style="color:var(--accent-light);">Режим тренировки (активен):</strong> традиционная благочестивая замена Имени (А-шем / Элокейну). Позволяет спокойно тренироваться в любом месте, в дороге и до омовения рук. Включается автоматически при каждом открытии приложения.'
       : '<strong style="color:#fca5a5;">Режим молитвы (активен):</strong> каноническое произношение Имени (Адонай / Элоhейну) для точного разучивания перед настоящей молитвой. Действует до перезапуска приложения.';
   }
 
@@ -2000,7 +2000,7 @@ function setupEventListeners() {
   // Кнопка принудительного обновления и версия
   const elAppVersionBadge = document.getElementById('app-version-badge');
   if (elAppVersionBadge) {
-    elAppVersionBadge.textContent = 'v17';
+    elAppVersionBadge.textContent = 'v18';
   }
 
   const elBtnForceUpdateApp = document.getElementById('btn-force-update-app');

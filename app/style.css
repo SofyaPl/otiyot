@@ -91,7 +91,7 @@ body {
 
 .logo-icon {
   font-size: 20px;
-  color: var(--accent);
+  color: var(--accent-light);
   line-height: 1;
 }
 
@@ -107,7 +107,7 @@ body {
 .logo-sub {
   font-family: 'Frank Ruhl Libre', serif;
   font-size: 15px;
-  color: var(--accent);
+  color: var(--accent-light);
   font-weight: 400;
 }
 
@@ -503,7 +503,7 @@ body {
   font-size: 11px;
   text-transform: uppercase;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--accent-light);
   letter-spacing: 0.5px;
   margin-bottom: 4px;
 }
@@ -751,7 +751,7 @@ body {
 
 .card-list-cat {
   font-size: 12px;
-  color: var(--accent);
+  color: var(--accent-light);
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -1054,7 +1054,7 @@ body {
 .settings-section-title {
   font-size: 11px;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--accent-light);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 2px;
@@ -1186,16 +1186,29 @@ body {
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
+  text-align: center;
+  min-height: 46px;
+  line-height: 1.35;
+  user-select: none;
+}
+
+.outline-action-btn svg {
+  flex-shrink: 0;
+}
+
+.outline-action-btn span {
+  text-align: center;
+  display: inline-block;
 }
 
 .outline-gold-btn {
   background: rgba(212, 175, 55, 0.06);
-  border-color: rgba(212, 175, 55, 0.4);
+  border-color: rgba(212, 175, 55, 0.35);
   color: var(--accent-light);
 }
 
 .outline-gold-btn:hover, .outline-gold-btn:active {
-  background: rgba(212, 175, 55, 0.15);
+  background: rgba(212, 175, 55, 0.16);
   border-color: var(--accent);
   color: #fff;
 }
@@ -1254,7 +1267,7 @@ body {
   padding: 2px 8px;
   border-radius: 6px;
   background: rgba(212, 175, 55, 0.14);
-  color: var(--accent);
+  color: var(--accent-light);
   border: 1px solid rgba(212, 175, 55, 0.35);
   letter-spacing: 0.5px;
 }
@@ -1378,7 +1391,7 @@ body {
 .small-action-btn:hover {
   background: var(--bg-card);
   border-color: var(--accent);
-  color: var(--accent);
+  color: var(--accent-light);
 }
 
 .bulk-textarea {
@@ -1472,7 +1485,7 @@ body {
 .preview-item-cat {
   font-size: 10px;
   font-weight: 600;
-  color: var(--accent);
+  color: var(--accent-light);
   background: rgba(212, 175, 55, 0.12);
   padding: 2px 6px;
   border-radius: 4px;
@@ -1542,7 +1555,7 @@ body {
 
 .chip-btn-add {
   border-style: dashed;
-  color: var(--accent);
+  color: var(--accent-light);
 }
 
 .chip-btn-add.active {
