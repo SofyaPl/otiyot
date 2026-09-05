@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Отиёт">
-  <link rel="manifest" href="manifest.json?v=9">
+  <link rel="manifest" href="manifest.json?v=10">
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
   <div id="app" class="app-container">
@@ -190,15 +190,23 @@
           <input type="hidden" id="field-card-id">
 
           <div class="form-group">
-            <label for="field-category">Категория:</label>
-            <input type="text" id="field-category" list="category-suggestions" placeholder="Например: Еда, Утро, Шабат" required>
-            <datalist id="category-suggestions">
-              <option value="Утро">
-              <option value="Еда">
-              <option value="Шабат">
-              <option value="Праздники">
-              <option value="Буквы">
-            </datalist>
+            <label>Категория молитвы:</label>
+            
+            <!-- Быстрые чипы-кнопки (выбор в 1 клик на мобильном) -->
+            <div id="category-quick-chips" class="category-chips-picker"></div>
+
+            <!-- Выпадающий список всех категорий -->
+            <select id="field-category-select" class="form-select" style="margin-top: 6px;">
+              <!-- Наполняется динамически -->
+            </select>
+
+            <!-- Поле ввода, если выбрана новая категория -->
+            <div id="custom-category-group" style="display:none; margin-top:8px;">
+              <input type="text" id="field-category-custom" placeholder="Напишите название новой категории...">
+            </div>
+
+            <!-- Скрытое поле для формы -->
+            <input type="hidden" id="field-category" required>
           </div>
 
           <div class="form-group">
@@ -227,8 +235,18 @@
           </div>
 
           <div class="form-group">
-            <label for="field-audio-file">Аудиозапись произношения (MP3/WAV/M4A):</label>
-            <input type="file" id="field-audio-file" accept="audio/*">
+            <label for="field-audio-url">Аудиозапись произношения:</label>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <input type="url" id="field-audio-url" placeholder="Ссылка на аудио (https://...mp3 или ./audio/...)" style="font-size:13px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <label class="btn secondary-btn small-action-btn file-input-label" style="font-size:12px; padding:6px 10px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                  <span>Загрузить аудиофайл с устройства</span>
+                  <input type="file" id="field-audio-file" accept="audio/*" style="display:none;">
+                </label>
+                <span id="field-audio-filename" style="font-size:11px; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+              </div>
+            </div>
             <div id="audio-preview-container" style="display:none; margin-top:8px;">
               <audio id="form-audio-preview" controls style="width:100%; height:36px;"></audio>
               <button type="button" id="btn-remove-audio" class="small-text-btn danger-btn">Удалить аудио</button>
@@ -270,12 +288,25 @@
 
             <!-- Блок 1: Массовое добавление -->
             <div class="settings-section">
-              <div class="settings-section-title">Массовое добавление</div>
+              <div class="settings-section-title">Массовое добавление карточек & аудио</div>
               <button id="btn-open-bulk" class="btn primary-btn" style="background: linear-gradient(135deg, #10b981, #059669); justify-content: center; gap: 8px; width: 100%;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
                 <span>Загрузить из таблицы (Excel / текст)</span>
               </button>
-              <p class="settings-hint">Скопируйте ячейки из Excel / Google Таблиц или загрузите файл со списком молитв</p>
+              <p class="settings-hint">Скопируйте ячейки из Excel / Google Таблиц со ссылками на аудио или текстом</p>
+
+              <label class="btn secondary-btn file-input-label" style="width: 100%; justify-content: center; gap: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                <span>Прикрепить MP3-файлы к карточкам (пачкой)</span>
+                <input type="file" id="input-settings-bulk-audio" multiple accept="audio/*" style="display:none;">
+              </label>
+              <p class="settings-hint">Выберите файлы (например: Мода ани.mp3, Шеаколь.mp3) — программа прикрепит их к карточкам по названию</p>
+
+              <button id="btn-download-all-audio" class="btn secondary-btn" style="width: 100%; justify-content: center; gap: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <span>Скачать аудио по ссылкам в память (офлайн)</span>
+              </button>
+              <p class="settings-hint">Сохранит аудиозаписи из интернета прямо в память телефона для прослушивания без сети</p>
             </div>
 
             <!-- Блок 2: Общий каталог -->
@@ -346,7 +377,8 @@
               <span class="col-pill">3. Иврит</span>
               <span class="col-pill">4. Транскрипция</span>
               <span class="col-pill">5. Перевод</span>
-              <span class="col-pill col-optional">6. Пояснение <i>(опционально)</i></span>
+              <span class="col-pill col-optional">6. Пояснение <i>(опц.)</i></span>
+              <span class="col-pill col-optional" style="background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.3);">7. Ссылка на аудио (MP3) <i>(опц.)</i></span>
             </div>
             <p class="guide-note">💡 <em>Программа сама поймет колонки, даже если они перепутаны или в первой строке есть заголовки!</em></p>
 
@@ -360,6 +392,12 @@
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>
                 <span>Выбрать файл (.xlsx, .csv, .txt)</span>
                 <input type="file" id="input-bulk-file" accept=".xlsx,.xls,.csv,.txt,.tsv" style="display:none;">
+              </label>
+
+              <label class="btn small-action-btn file-input-label" title="Прикрепить аудиофайлы с устройства к карточкам по их названиям">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                <span>Прикрепить MP3-файлы</span>
+                <input type="file" id="input-bulk-audio-files" multiple accept="audio/*" style="display:none;">
               </label>
             </div>
           </div>
@@ -402,6 +440,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="app.js?v=9"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>

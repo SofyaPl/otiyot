@@ -245,12 +245,16 @@ const elImagePreviewBox = document.getElementById('image-preview-container');
 const elBtnRemoveImage = document.getElementById('btn-remove-image');
 const elBtnDeleteCardAction = document.getElementById('btn-delete-card-action');
 const elFormModalTitle = document.getElementById('form-modal-title');
+const elFieldAudioUrl = document.getElementById('field-audio-url');
+const elFieldAudioFilename = document.getElementById('field-audio-filename');
 
 // Настройки
 const elBtnExportJson = document.getElementById('btn-export-json');
 const elBtnImportJson = document.getElementById('btn-import-json');
 const elBtnResetDefault = document.getElementById('btn-reset-default');
 const elBtnExportCatalog = document.getElementById('btn-export-catalog');
+const elBtnDownloadAllAudio = document.getElementById('btn-download-all-audio');
+const elInputSettingsBulkAudio = document.getElementById('input-settings-bulk-audio');
 
 // Модалка массовой загрузки
 const elModalBulk = document.getElementById('modal-bulk-import');
@@ -260,6 +264,7 @@ const elBtnOpenBulkFromList = document.getElementById('btn-open-bulk-from-list')
 const elBtnSwitchToBulk = document.getElementById('btn-switch-to-bulk');
 const elBtnDownloadTemplate = document.getElementById('btn-download-template');
 const elInputBulkFile = document.getElementById('input-bulk-file');
+const elInputBulkAudioFiles = document.getElementById('input-bulk-audio-files');
 const elBulkTextInput = document.getElementById('bulk-text-input');
 const elBtnBulkClear = document.getElementById('btn-bulk-clear');
 const elBulkPreviewArea = document.getElementById('bulk-preview-area');
@@ -270,6 +275,7 @@ const elBtnBulkApplyAddText = document.getElementById('btn-bulk-apply-add-text')
 const elBtnBulkApplyReplace = document.getElementById('btn-bulk-apply-replace');
 
 let parsedBulkCards = [];
+let previewAudioObj = null;
 
 // Временное хранение base64 при редактировании
 let tempAudioData = '';
@@ -517,16 +523,117 @@ function setupTouchSwipe() {
 
 // ================= РЕДАКТИРОВАНИЕ И ДОБАВЛЕНИЕ КАРТОЧЕК =================
 
+function setupCategoryPicker(activeCategory = 'Утро') {
+  const elCategoryChips = document.getElementById('category-quick-chips');
+  const elCategorySelect = document.getElementById('field-category-select');
+  const elCategoryCustomGroup = document.getElementById('custom-category-group');
+  const elCategoryCustomInput = document.getElementById('field-category-custom');
+  const elFieldCategory = document.getElementById('field-category');
+
+  if (!elCategoryChips || !elCategorySelect || !elFieldCategory) return;
+
+  const baseCategories = ['Утро', 'Еда', 'Шабат', 'Праздники', 'Буквы'];
+  const userCategories = state.getCategories().filter(c => c !== 'Все');
+  const allCategories = Array.from(new Set([...baseCategories, ...userCategories]));
+
+  let currentCat = (activeCategory || 'Утро').trim();
+  const isCustom = !allCategories.includes(currentCat);
+
+  // Наполняем Select
+  elCategorySelect.innerHTML = '';
+  allCategories.forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = cat;
+    if (!isCustom && cat === currentCat) opt.selected = true;
+    elCategorySelect.appendChild(opt);
+  });
+
+  const optCustom = document.createElement('option');
+  optCustom.value = '__custom__';
+  optCustom.textContent = '➕ Своя новая категория...';
+  if (isCustom) optCustom.selected = true;
+  elCategorySelect.appendChild(optCustom);
+
+  // Наполняем Чипы для выбора в 1 клик на мобильном
+  elCategoryChips.innerHTML = '';
+  allCategories.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `chip-btn ${(!isCustom && cat === currentCat) ? 'active' : ''}`;
+    btn.textContent = cat;
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      selectCategory(cat);
+    });
+    elCategoryChips.appendChild(btn);
+  });
+
+  const btnCustom = document.createElement('button');
+  btnCustom.type = 'button';
+  btnCustom.className = `chip-btn chip-btn-add ${isCustom ? 'active' : ''}`;
+  btnCustom.textContent = '➕ Своя';
+  btnCustom.addEventListener('click', (e) => {
+    e.preventDefault();
+    selectCategory('__custom__');
+  });
+  elCategoryChips.appendChild(btnCustom);
+
+  function selectCategory(cat) {
+    if (cat === '__custom__') {
+      elCategorySelect.value = '__custom__';
+      elCategoryCustomGroup.style.display = 'block';
+      if (elCategoryCustomInput) {
+        if (!isCustom) elCategoryCustomInput.value = '';
+        elCategoryCustomInput.focus();
+        elFieldCategory.value = elCategoryCustomInput.value.trim() || 'Разное';
+      }
+      elCategoryChips.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('active'));
+      btnCustom.classList.add('active');
+    } else {
+      elCategorySelect.value = cat;
+      elCategoryCustomGroup.style.display = 'none';
+      elFieldCategory.value = cat;
+      elCategoryChips.querySelectorAll('.chip-btn').forEach(b => {
+        b.classList.toggle('active', b.textContent === cat);
+      });
+      btnCustom.classList.remove('active');
+    }
+  }
+
+  elCategorySelect.onchange = () => {
+    selectCategory(elCategorySelect.value);
+  };
+
+  if (elCategoryCustomInput) {
+    elCategoryCustomInput.oninput = () => {
+      if (elCategorySelect.value === '__custom__') {
+        elFieldCategory.value = elCategoryCustomInput.value.trim() || 'Разное';
+      }
+    };
+  }
+
+  if (isCustom) {
+    selectCategory('__custom__');
+    if (elCategoryCustomInput) elCategoryCustomInput.value = currentCat;
+    elFieldCategory.value = currentCat;
+  } else {
+    selectCategory(currentCat);
+  }
+}
+
 function openCardEditor(card = null) {
   tempAudioData = '';
   tempImageData = '';
-  elFieldAudioFile.value = '';
-  elFieldImageFile.value = '';
+  if (elFieldAudioFile) elFieldAudioFile.value = '';
+  if (elFieldImageFile) elFieldImageFile.value = '';
+  if (elFieldAudioUrl) elFieldAudioUrl.value = '';
+  if (elFieldAudioFilename) elFieldAudioFilename.textContent = '';
 
   if (card) {
     elFormModalTitle.textContent = 'Редактировать карточку';
     elFieldId.value = card.id;
-    elFieldCategory.value = card.category;
+    setupCategoryPicker(card.category);
     elFieldTitle.value = card.title;
     elFieldHebrew.value = card.hebrew;
     elFieldTranscription.value = card.transcription || '';
@@ -538,6 +645,12 @@ function openCardEditor(card = null) {
       tempAudioData = card.audio;
       elAudioPreview.src = card.audio;
       elAudioPreviewBox.style.display = 'block';
+      if (card.audio.startsWith('http://') || card.audio.startsWith('https://') || card.audio.startsWith('./')) {
+        if (elFieldAudioUrl) elFieldAudioUrl.value = card.audio;
+        if (elFieldAudioFilename) elFieldAudioFilename.textContent = 'Ссылка на MP3';
+      } else {
+        if (elFieldAudioFilename) elFieldAudioFilename.textContent = 'Прикреплен аудиофайл в памяти';
+      }
     } else {
       elAudioPreviewBox.style.display = 'none';
     }
@@ -556,7 +669,8 @@ function openCardEditor(card = null) {
     elFormModalTitle.textContent = 'Новая карточка';
     elCardForm.reset();
     elFieldId.value = '';
-    elFieldCategory.value = state.currentCategory === 'Все' ? 'Еда' : state.currentCategory;
+    const defaultCat = state.currentCategory === 'Все' ? 'Утро' : state.currentCategory;
+    setupCategoryPicker(defaultCat);
     elAudioPreviewBox.style.display = 'none';
     elImagePreviewBox.style.display = 'none';
     elBtnDeleteCardAction.style.display = 'none';
@@ -568,12 +682,24 @@ function openCardEditor(card = null) {
 function handleSaveCard(e) {
   e.preventDefault();
   const id = elFieldId.value || 'card-' + Date.now();
-  const category = elFieldCategory.value.trim() || 'Разное';
+  
+  let category = elFieldCategory.value.trim();
+  if (category === '__custom__') {
+    const customInp = document.getElementById('field-category-custom');
+    category = (customInp ? customInp.value.trim() : '') || 'Разное';
+  }
+  if (!category) category = 'Разное';
+
   const title = elFieldTitle.value.trim();
   const hebrew = elFieldHebrew.value.trim();
   const transcription = elFieldTranscription.value.trim();
   const translation = elFieldTranslation.value.trim();
   const breakdown = elFieldBreakdown.value.trim();
+
+  let audio = tempAudioData;
+  if (!audio && elFieldAudioUrl && elFieldAudioUrl.value.trim()) {
+    audio = elFieldAudioUrl.value.trim();
+  }
 
   const newCardData = {
     id,
@@ -583,7 +709,7 @@ function handleSaveCard(e) {
     transcription,
     translation,
     breakdown,
-    audio: tempAudioData,
+    audio,
     image: tempImageData
   };
 
@@ -626,43 +752,81 @@ function handleDeleteCard() {
   elModalForm.style.display = 'none';
 }
 
-// Преобразование загружаемых файлов в base64
+// Преобразование загружаемых файлов в base64 и работа со звуком
 function setupFileInputs() {
-  elFieldAudioFile.addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      tempAudioData = ev.target.result;
-      elAudioPreview.src = tempAudioData;
-      elAudioPreviewBox.style.display = 'block';
-    };
-    reader.readAsDataURL(file);
-  });
+  if (elFieldAudioFile) {
+    elFieldAudioFile.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        tempAudioData = ev.target.result;
+        elAudioPreview.src = tempAudioData;
+        elAudioPreviewBox.style.display = 'block';
+        if (elFieldAudioUrl) elFieldAudioUrl.value = '';
+        if (elFieldAudioFilename) elFieldAudioFilename.textContent = file.name;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
 
-  elBtnRemoveAudio.addEventListener('click', () => {
-    tempAudioData = '';
-    elFieldAudioFile.value = '';
-    elAudioPreviewBox.style.display = 'none';
-  });
+  if (elFieldAudioUrl) {
+    elFieldAudioUrl.addEventListener('input', () => {
+      const url = elFieldAudioUrl.value.trim();
+      if (url) {
+        tempAudioData = url;
+        elAudioPreview.src = url;
+        elAudioPreviewBox.style.display = 'block';
+        if (elFieldAudioFilename) elFieldAudioFilename.textContent = 'Введена ссылка на MP3';
+      } else if (!elFieldAudioFile || !elFieldAudioFile.value) {
+        tempAudioData = '';
+        elAudioPreviewBox.style.display = 'none';
+        if (elFieldAudioFilename) elFieldAudioFilename.textContent = '';
+      }
+    });
+  }
 
-  elFieldImageFile.addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      tempImageData = ev.target.result;
-      elImagePreview.src = tempImageData;
-      elImagePreviewBox.style.display = 'block';
-    };
-    reader.readAsDataURL(file);
-  });
+  if (elBtnRemoveAudio) {
+    elBtnRemoveAudio.addEventListener('click', () => {
+      tempAudioData = '';
+      if (elFieldAudioFile) elFieldAudioFile.value = '';
+      if (elFieldAudioUrl) elFieldAudioUrl.value = '';
+      if (elFieldAudioFilename) elFieldAudioFilename.textContent = '';
+      elAudioPreviewBox.style.display = 'none';
+    });
+  }
 
-  elBtnRemoveImage.addEventListener('click', () => {
-    tempImageData = '';
-    elFieldImageFile.value = '';
-    elImagePreviewBox.style.display = 'none';
-  });
+  if (elFieldImageFile) {
+    elFieldImageFile.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        tempImageData = ev.target.result;
+        elImagePreview.src = tempImageData;
+        elImagePreviewBox.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  if (elBtnRemoveImage) {
+    elBtnRemoveImage.addEventListener('click', () => {
+      tempImageData = '';
+      if (elFieldImageFile) elFieldImageFile.value = '';
+      elImagePreviewBox.style.display = 'none';
+    });
+  }
+
+  if (elInputBulkAudioFiles) {
+    elInputBulkAudioFiles.addEventListener('change', handleBulkAudioFiles);
+  }
+  if (elInputSettingsBulkAudio) {
+    elInputSettingsBulkAudio.addEventListener('change', handleBulkAudioFiles);
+  }
+  if (elBtnDownloadAllAudio) {
+    elBtnDownloadAllAudio.addEventListener('click', downloadAllRemoteAudio);
+  }
 }
 
 // ================= СПИСОК ВСЕХ КАРТОЧЕК И ПЕРЕМЕЩЕНИЕ =================
@@ -947,10 +1111,10 @@ function openBulkImportModal() {
 function downloadExcelTemplate() {
   const bom = '\uFEFF';
   const csvContent = bom +
-    'Категория;Название;Иврит с огласовками;Транскрипция;Перевод;Пояснение\r\n' +
-    'Утро;Мода ани;מוֹדָה אֲנִי לְפָנֶיךָ מֶלֶךְ חַי וְקַיָּם, שֶׁהֶחֱזַרְתָּ בִּי נִשְׁמָתִי בְּחֶמְלָה, רַבָּה אֱמוּנָתֶךָ׃;Мо-да́ а-ни́ ле-фа-не́-ха, мэ́-лех хай ве-ка-я́м, ше-эхэза́рта би нишма-ти́ бе-хем-ла́, ра-ба́ эму-на-тэ́-ха.;«Благодарю я Тебя, Владыка живой и сущий, за то, что Ты по милосердию Своему возвратил мне душу мою. Велика вера в Тебя!»;Произносится сразу после пробуждения, еще не вставая с кровати. Руки соединяются вместе.\r\n' +
-    'Еда;Шеаколь;בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, שֶׁהַכֹּל נִהְיָה בִּדְבָרוֹ׃;Ба-ру́х а-та́ А-до-на́й, Э-ло-э́й-ну мэ́-лех а-о-ла́м, ше-а-ко́ль ни-йя́ бид-ва-ро́.;«Благословен Ты, Господь, Бог наш, Царь вселенной, по слову Которого возникло всё!»;Произносится перед питьем воды, чая, напитков, а также перед мясом, рыбой, сыром и яйцами.\r\n' +
-    'Шабат;Кидуш (начало);יוֹם הַשִּׁשִּׁי. וַיְכֻלּוּ הַשָּׁמַיִם וְהָאָרֶץ וְכָל צְבָאָם׃;Йом а-ши-ши́. Ва-йху-лу́ а-ша-ма́-им ве-а-а́-рец ве-холь це-ва-а́м.;«День шестой. И завершены были небо и земля, и все воинство их.»;Начало пятничного вечернего кидуша над бокалом вина или виноградного сока.\r\n';
+    'Категория;Название;Иврит с огласовками;Транскрипция;Перевод;Пояснение;Ссылка на аудио (MP3)\r\n' +
+    'Утро;Мода ани;מוֹדָה אֲנִי לְפָנֶיךָ מֶלֶךְ חַי וְקַיָּם, שֶׁהֶחֱזַרְתָּ בִּי נִשְׁמָתִי בְּחֶמְלָה, רַבָּה אֱמוּנָתֶךָ׃;Мо-да́ а-ни́ ле-фа-не́-ха, мэ́-лех хай ве-ка-я́м, ше-эхэза́рта би нишма-ти́ бе-хем-ла́, ра-ба́ эму-на-тэ́-ха.;«Благодарю я Тебя, Владыка живой и сущий, за то, что Ты по милосердию Своему возвратил мне душу мою. Велика вера в Тебя!»;Произносится сразу после пробуждения, еще не вставая с кровати. Руки соединяются вместе.;\r\n' +
+    'Еда;Шеаколь;בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, שֶׁהַכֹּל נִהְיָה בִּדְבָרוֹ׃;Ба-ру́х а-та́ А-до-на́й, Э-ло-э́й-ну мэ́-лех а-о-ла́м, ше-а-ко́ль ни-йя́ бид-ва-ро́.;«Благословен Ты, Господь, Бог наш, Царь вселенной, по слову Которого возникло всё!»;Произносится перед питьем воды, чая, напитков, а также перед мясом, рыбой, сыром и яйцами.;\r\n' +
+    'Шабат;Кидуш (начало);יוֹם הַשִּׁשִּׁי. וַיְכֻלּוּ הַשָּׁמַיִם וְהָאָרֶץ וְכָל צְבָאָם׃;Йом а-ши-ши́. Ва-йху-лу́ а-ша-ма́-им ве-а-а́-рец ве-холь це-ва-а́м.;«День шестой. И завершены были небо и земля, и все воинство их.»;Начало пятничного вечернего кидуша над бокалом вина или виноградного сока.;\r\n';
 
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
@@ -1032,10 +1196,11 @@ function parseRowsToCards(rows) {
     hebrew: ['иврит', 'текст', 'оригинал', 'слова', 'hebrew', 'ivrit'],
     transcription: ['транскрипция', 'чтение', 'произношение', 'звучание', 'transcription'],
     translation: ['перевод', 'значение', 'русский', 'translation'],
-    breakdown: ['пояснение', 'комментарий', 'правила', 'законы', 'разбор', 'описание', 'comment', 'breakdown']
+    breakdown: ['пояснение', 'комментарий', 'правила', 'законы', 'разбор', 'описание', 'comment', 'breakdown'],
+    audio: ['аудио', 'звук', 'озвучка', 'ссылка на аудио', 'мп3', 'audio', 'sound', 'voice', 'mp3', 'url', 'link']
   };
 
-  const mapping = { category: -1, title: -1, hebrew: -1, transcription: -1, translation: -1, breakdown: -1 };
+  const mapping = { category: -1, title: -1, hebrew: -1, transcription: -1, translation: -1, breakdown: -1, audio: -1 };
   let startIndex = 0;
   const firstRow = rows[0].map(c => String(c || '').toLowerCase().trim());
   let matchesCount = 0;
@@ -1056,7 +1221,7 @@ function parseRowsToCards(rows) {
     startIndex = 1;
   } else {
     mapping.category = -1; mapping.title = -1; mapping.hebrew = -1;
-    mapping.transcription = -1; mapping.translation = -1; mapping.breakdown = -1;
+    mapping.transcription = -1; mapping.translation = -1; mapping.breakdown = -1; mapping.audio = -1;
   }
 
   const sampleRows = rows.slice(startIndex, startIndex + 10);
@@ -1092,17 +1257,20 @@ function parseRowsToCards(rows) {
       mapping.transcription = 3 < totalCols ? 3 : -1;
       mapping.translation = 4 < totalCols ? 4 : -1;
       mapping.breakdown = 5 < totalCols ? 5 : -1;
+      mapping.audio = 6 < totalCols ? 6 : -1;
     } else if (mapping.hebrew === 1) {
       mapping.title = 0;
       mapping.category = -1;
       mapping.transcription = 2 < totalCols ? 2 : -1;
       mapping.translation = 3 < totalCols ? 3 : -1;
       mapping.breakdown = 4 < totalCols ? 4 : -1;
+      mapping.audio = 5 < totalCols ? 5 : -1;
     } else if (mapping.hebrew === 0) {
       mapping.title = 1 < totalCols ? 1 : -1;
       mapping.transcription = 2 < totalCols ? 2 : -1;
       mapping.translation = 3 < totalCols ? 3 : -1;
       mapping.breakdown = 4 < totalCols ? 4 : -1;
+      mapping.audio = 5 < totalCols ? 5 : -1;
     }
   }
 
@@ -1117,6 +1285,19 @@ function parseRowsToCards(rows) {
     const transcription = (mapping.transcription >= 0 ? String(row[mapping.transcription] || '') : '').trim();
     const translation = (mapping.translation >= 0 ? String(row[mapping.translation] || '') : '').trim();
     const breakdown = (mapping.breakdown >= 0 ? String(row[mapping.breakdown] || '') : '').trim();
+    let audio = (mapping.audio >= 0 ? String(row[mapping.audio] || '') : '').trim();
+
+    // Авто-поиск ссылки на аудио в любой ячейке, если не была найдена колонка
+    if (!audio) {
+      for (let c = 0; c < row.length; c++) {
+        if (c === mapping.hebrew || c === mapping.title || c === mapping.category) continue;
+        const val = String(row[c] || '').trim();
+        if (/^(https?:\/\/|\.\/|\/).+\.(mp3|wav|ogg|m4a|aac)($|\?)/i.test(val) || /^https?:\/\/.+/i.test(val)) {
+          audio = val;
+          break;
+        }
+      }
+    }
 
     if (!title) {
       if (hebrew) {
@@ -1139,13 +1320,153 @@ function parseRowsToCards(rows) {
         transcription,
         translation,
         breakdown,
-        audio: '',
+        audio,
         image: ''
       });
     }
   }
 
   return cards;
+}
+
+function testPlayAudio(url, btnElement) {
+  if (previewAudioObj) {
+    previewAudioObj.pause();
+    previewAudioObj = null;
+    document.querySelectorAll('.mini-play-btn').forEach(b => b.textContent = '▶️ Проверить');
+    return;
+  }
+  try {
+    previewAudioObj = new Audio(url);
+    if (btnElement) btnElement.textContent = '⏹️ Стоп';
+    previewAudioObj.onended = () => {
+      if (btnElement) btnElement.textContent = '▶️ Проверить';
+      previewAudioObj = null;
+    };
+    previewAudioObj.onerror = () => {
+      alert('Не удалось загрузить аудио по ссылке:\n' + url + '\nУбедитесь, что ссылка прямая (на .mp3) и открывается в браузере.');
+      if (btnElement) btnElement.textContent = '▶️ Проверить';
+      previewAudioObj = null;
+    };
+    previewAudioObj.play().catch(err => {
+      alert('Ошибка воспроизведения аудио: ' + err.message);
+      if (btnElement) btnElement.textContent = '▶️ Проверить';
+      previewAudioObj = null;
+    });
+  } catch (err) {
+    alert('Ошибка запуска аудио: ' + err.message);
+  }
+}
+
+async function downloadAllRemoteAudio() {
+  const cardsWithUrls = state.cards.filter(c => c.audio && (c.audio.startsWith('http://') || c.audio.startsWith('https://') || c.audio.startsWith('./')));
+  if (cardsWithUrls.length === 0) {
+    alert('В карточках нет внешних интернет-ссылок на аудиофайлы.\n(Либо все аудиофайлы уже сохранены в памяти телефона, либо ссылки не указаны).');
+    return;
+  }
+
+  if (!confirm(`Найдено ${cardsWithUrls.length} ${pluralizeCards(cardsWithUrls.length)} со ссылками на аудиофайлы.\nСкачать их прямо в память устройства, чтобы они воспроизводились офлайн без интернета?`)) {
+    return;
+  }
+
+  let downloadedCount = 0;
+  let failedCount = 0;
+
+  for (let i = 0; i < cardsWithUrls.length; i++) {
+    const card = cardsWithUrls[i];
+    try {
+      const res = await fetch(card.audio);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const blob = await res.blob();
+      const base64Data = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = ev => resolve(ev.target.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+      card.audio = base64Data;
+      downloadedCount++;
+    } catch (err) {
+      console.warn(`Не удалось скачать аудио для «${card.title}»:`, err);
+      failedCount++;
+    }
+  }
+
+  state.saveCards();
+  renderCurrentCard();
+
+  let msg = `Готово!\nУспешно скачано в память: ${downloadedCount} аудио. Теперь они работают офлайн без интернета!`;
+  if (failedCount > 0) {
+    msg += `\nНе удалось скачать (CORS или недоступна ссылка): ${failedCount} шт. Они продолжат работать как ссылки онлайн.`;
+  }
+  alert(msg);
+}
+
+function handleBulkAudioFiles(e) {
+  const files = Array.from(e.target.files || []);
+  if (files.length === 0) return;
+
+  const matched = [];
+  const unmatched = [];
+  let processed = 0;
+
+  files.forEach((file) => {
+    const rawName = file.name.replace(/\.[^/.]+$/, '').trim();
+    const cleanName = rawName.toLowerCase();
+
+    let targetCard = null;
+    // 1. Точное совпадение
+    targetCard = state.cards.find(c => c.title.trim().toLowerCase() === cleanName);
+
+    // 2. Частичное совпадение
+    if (!targetCard) {
+      targetCard = state.cards.find(c => {
+        const t = c.title.trim().toLowerCase();
+        return cleanName.includes(t) || t.includes(cleanName);
+      });
+    }
+
+    // 3. По номеру (например 1.mp3 -> первая карточка)
+    if (!targetCard) {
+      const num = parseInt(cleanName, 10);
+      if (!isNaN(num) && num >= 1 && num <= state.cards.length) {
+        targetCard = state.cards[num - 1];
+      }
+    }
+
+    if (targetCard) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        targetCard.audio = ev.target.result;
+        matched.push(`«${targetCard.title}» (${file.name})`);
+        processed++;
+        checkDone();
+      };
+      reader.readAsDataURL(file);
+    } else {
+      unmatched.push(file.name);
+      processed++;
+      checkDone();
+    }
+  });
+
+  function checkDone() {
+    if (processed === files.length) {
+      state.saveCards();
+      renderCurrentCard();
+      renderListViewItems();
+      e.target.value = '';
+
+      let message = '';
+      if (matched.length > 0) {
+        message += `Успешно прикреплено ${matched.length} аудио к карточкам:\n• ` + matched.join('\n• ');
+      }
+      if (unmatched.length > 0) {
+        message += `\n\nНе удалось сопоставить ${unmatched.length} файлов (назовите файл так же, как карточку, например «Мода ани.mp3» или «1.mp3»):\n• ` + unmatched.join('\n• ');
+      }
+      alert(message || 'Файлы обработаны.');
+    }
+  }
 }
 
 function updateBulkPreview(cards) {
@@ -1186,7 +1507,21 @@ function updateBulkPreview(cards) {
         ${card.hebrew ? `<div class="preview-item-hebrew">${card.hebrew}</div>` : '<div style="color:#ef4444;font-size:11px;">⚠️ Нет текста на иврите</div>'}
         ${card.transcription ? `<div class="preview-item-trans">🔊 ${card.transcription}</div>` : ''}
         ${card.translation ? `<div class="preview-item-translat">«${card.translation}»</div>` : ''}
+        ${card.audio ? `
+          <div class="preview-item-audio">
+            <span>🎵 Ссылка на звук:</span>
+            <span class="audio-link-text" title="${card.audio}">${card.audio}</span>
+            <button type="button" class="mini-play-btn" data-audio="${card.audio}">▶️ Проверить</button>
+          </div>
+        ` : ''}
       `;
+      const playBtn = item.querySelector('.mini-play-btn');
+      if (playBtn) {
+        playBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          testPlayAudio(card.audio, playBtn);
+        });
+      }
       elBulkPreviewList.appendChild(item);
     });
   }
