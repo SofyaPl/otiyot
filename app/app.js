@@ -154,7 +154,7 @@ class AppState {
         const parsed = JSON.parse(saved);
         let updated = false;
         parsed.forEach(c => {
-          if (c.id === 'card-1' && c.title && c.title.includes('Мода ани')) {
+          if (c.id === 'card-1' && (c.title?.includes('Мода') || c.hebrew?.includes('מוֹדָה') || c.breakdown?.includes('Мода ани'))) {
             c.title = 'Моде ани (Благодарность)';
             c.hebrew = 'מוֹדֶה אֲנִי לְפָנֶיךָ מֶלֶךְ חַי וְקַיָּם, שֶׁהֶחֱזַרְתָּ בִּי נִשְׁמָתִי בְּחֶמְלָה, רַבָּה אֱמוּנָתֶךָ׃';
             c.transcription = 'Мо-де́ а-ни́ ле-фа-не́-ха, мэ́-лех хай ве-ка-я́м, ше-эхэза́рта би нишма-ти́ бе-хем-ла́, ра-ба́ эму-на-тэ́-ха.';
@@ -548,9 +548,9 @@ function setSpeechDivineMode(mode, showNotification = true) {
 
   if (showNotification) {
     if (mode === 'prayer') {
-      showToast('✡️ Включён режим молитвы: Адонай / Элоhейну (до перезапуска)');
+      showToast('Включён режим молитвы: Адонай / Элоhейну (до перезапуска)');
     } else {
-      showToast('🎓 Включён учебный режим: А-шем / Элокейну');
+      showToast('Включён учебный режим: А-шем / Элокейну');
     }
   }
 }
@@ -563,10 +563,10 @@ function updateSpeechModeUI() {
     if (!btn) return;
     btn.className = `speech-mode-badge ${isStudy ? 'mode-study' : 'mode-prayer'}`;
     btn.innerHTML = isStudy
-      ? '<span class="mode-badge-icon">🎓</span><span class="mode-badge-text">Учебный</span>'
-      : '<span class="mode-badge-icon">✡️</span><span class="mode-badge-text">Молитва</span>';
+      ? '<span class="mode-badge-text">Учебный</span>'
+      : '<span class="mode-badge-text">Молитва</span>';
     btn.title = isStudy
-      ? 'Режим произношения: Учебный (А-шем / Элокейну). Нажмите, чтобы переключить на режим молитвы.'
+      ? 'Режим произношения: Учебный (А-шем / Элокейну). Нажмите, чтобы включить режим молитвы.'
       : 'Режим произношения: Молитва (Адонай / Элоhейну). Нажмите, чтобы вернуть учебный режим.';
   });
 
@@ -582,12 +582,12 @@ function updateSpeechModeUI() {
   if (elSettingsDivineModeDesc) {
     elSettingsDivineModeDesc.innerHTML = isStudy
       ? '<strong>Учебный режим (активен):</strong> традиционная благочестивая замена Имени (А-шем / Элокейну). Позволяет спокойно тренироваться в любом месте, в дороге и до омовения рук. Включается автоматически при каждом открытии приложения.'
-      : '<strong style="color:var(--accent-light);">Режим молитвы (активен):</strong> каноническое произношение Имени (Адонай / Элоhейну) для точного разучивания перед настоящей молитвой. Действует до перезапуска приложения.';
+      : '<strong style="color:#93c5fd;">Режим молитвы (активен):</strong> каноническое произношение Имени (Адонай / Элоhейну) для точного разучивания перед настоящей молитвой. Действует до перезапуска приложения.';
   }
 
   if (elSettingsDivineModeStatus) {
-    elSettingsDivineModeStatus.style.background = isStudy ? 'rgba(16,185,129,0.15)' : 'rgba(212,175,55,0.2)';
-    elSettingsDivineModeStatus.style.color = isStudy ? '#34d399' : 'var(--accent-light)';
+    elSettingsDivineModeStatus.style.background = isStudy ? 'rgba(212,175,55,0.14)' : 'rgba(59,130,246,0.18)';
+    elSettingsDivineModeStatus.style.color = isStudy ? '#fbbf24' : '#93c5fd';
     elSettingsDivineModeStatus.textContent = isStudy ? 'Учебный (А-шем)' : 'Молитва (Адонай)';
   }
 }
@@ -1042,33 +1042,44 @@ function renderListViewItems() {
     item.dataset.index = idx;
 
     item.innerHTML = `
-      <div class="card-list-number-badge" title="Позиция #${idx + 1}">${idx + 1}</div>
-      <div class="card-list-main-click" title="Открыть карточку">
-        <div class="card-list-info">
+      <div class="card-list-row-top">
+        <div class="card-list-number-badge" title="Позиция #${idx + 1}">${idx + 1}</div>
+        <div class="card-list-main-click" title="Нажмите, чтобы открыть эту карточку">
           <div class="card-list-title-row">
             <span class="card-list-title">${card.title}</span>
             ${idx === 0 ? '<span class="first-tag">Старт</span>' : ''}
           </div>
-          <span class="card-list-cat">${card.category}</span>
+          <div class="card-list-sub-row">
+            <span class="card-list-cat">${card.category}</span>
+            <span class="card-list-sub-divider">•</span>
+            <span class="card-list-hebrew-preview">${card.hebrew.replace(/[׃.]$/, '').substring(0, 32)}...</span>
+          </div>
         </div>
-        <div class="card-list-hebrew-preview">${card.hebrew.substring(0, 14)}...</div>
+        <div class="card-list-item-tools">
+          <button class="order-btn btn-edit-item" title="Редактировать карточку">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+          </button>
+          <button class="order-btn btn-delete-item" title="Удалить карточку">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          </button>
+        </div>
       </div>
-      <div class="card-list-order-actions">
-        <button class="order-btn btn-top" title="Сделать первой (на 1-е место при запуске)" ${idx === 0 ? 'disabled' : ''}>
-          🔝
-        </button>
-        <button class="order-btn btn-up" title="Поднять выше" ${idx === 0 ? 'disabled' : ''}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
-        </button>
-        <button class="order-btn btn-down" title="Опустить ниже" ${idx === total - 1 ? 'disabled' : ''}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
-        </button>
-        <button class="order-btn btn-edit-item" title="Редактировать карточку">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-        </button>
-        <button class="order-btn btn-delete-item" title="Удалить карточку">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-        </button>
+      <div class="card-list-row-bottom">
+        <div class="card-list-order-hint">Позиция в списке:</div>
+        <div class="card-list-order-controls">
+          <button class="order-action-btn btn-top" title="Поставить на 1-е место (откроется при старте)" ${idx === 0 ? 'disabled' : ''}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline><line x1="6" y1="5" x2="18" y2="5"></line></svg>
+            <span>В начало</span>
+          </button>
+          <button class="order-action-btn btn-up" title="Поднять выше на 1 шаг" ${idx === 0 ? 'disabled' : ''}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"></polyline></svg>
+            <span>Выше</span>
+          </button>
+          <button class="order-action-btn btn-down" title="Опустить ниже на 1 шаг" ${idx === total - 1 ? 'disabled' : ''}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            <span>Ниже</span>
+          </button>
+        </div>
       </div>
     `;
 
@@ -1972,6 +1983,43 @@ function setupEventListeners() {
       } else {
         alert('Чтобы установить без значка Chrome:\nВ меню Chrome (три точки справа вверху) выберите «Установить приложение».');
       }
+    });
+  }
+
+  // Кнопка принудительного обновления и версия
+  const elAppVersionBadge = document.getElementById('app-version-badge');
+  if (elAppVersionBadge) {
+    elAppVersionBadge.textContent = 'v15';
+  }
+
+  const elBtnForceUpdateApp = document.getElementById('btn-force-update-app');
+  if (elBtnForceUpdateApp) {
+    elBtnForceUpdateApp.addEventListener('click', async () => {
+      elBtnForceUpdateApp.disabled = true;
+      elBtnForceUpdateApp.innerHTML = '<span>⏳ Очищаем кэш и обновляем...</span>';
+      showToast('Очищаем кэш и загружаем обновление...');
+
+      try {
+        if ('serviceWorker' in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          for (let reg of registrations) {
+            await reg.unregister();
+          }
+        }
+        if ('caches' in window) {
+          const keys = await caches.keys();
+          for (let k of keys) {
+            await caches.delete(k);
+          }
+        }
+      } catch (err) {
+        console.warn('Ошибка при очистке кэша:', err);
+      }
+
+      setTimeout(() => {
+        const cleanUrl = window.location.pathname + '?reload=' + Date.now();
+        window.location.href = cleanUrl;
+      }, 500);
     });
   }
 
