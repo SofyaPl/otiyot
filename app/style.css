@@ -351,6 +351,45 @@ body {
 .header-right-btns {
   display: flex;
   gap: 8px;
+  align-items: center;
+}
+
+/* Бейдж режима произношения (Учебный / Молитва) */
+.speech-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 18px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  border: 1px solid transparent;
+  height: 34px;
+}
+
+.speech-mode-badge.mode-study {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.45);
+  color: #34d399;
+}
+
+.speech-mode-badge.mode-study:hover, .speech-mode-badge.mode-study:active {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: #10b981;
+}
+
+.speech-mode-badge.mode-prayer {
+  background: rgba(212, 175, 55, 0.18);
+  border-color: rgba(212, 175, 55, 0.55);
+  color: #fbbf24;
+}
+
+.speech-mode-badge.mode-prayer:hover, .speech-mode-badge.mode-prayer:active {
+  background: rgba(212, 175, 55, 0.3);
+  border-color: #f59e0b;
 }
 
 .audio-btn, .edit-btn {
@@ -976,6 +1015,96 @@ body {
   border-radius: 3px;
   background: var(--border-color);
   outline: none;
+}
+
+/* Переключатель Учебный / Молитва в настройках */
+.divine-mode-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.divine-mode-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 10px 8px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  gap: 3px;
+}
+
+.divine-mode-btn .mode-icon {
+  font-size: 18px;
+  margin-bottom: 2px;
+}
+
+.divine-mode-btn .mode-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.divine-mode-btn .mode-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.divine-mode-btn.active.study-active {
+  background: rgba(16, 185, 129, 0.14);
+  border-color: #10b981;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+}
+
+.divine-mode-btn.active.study-active .mode-name {
+  color: #34d399;
+}
+
+.divine-mode-btn.active.prayer-active {
+  background: rgba(212, 175, 55, 0.16);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.25);
+}
+
+.divine-mode-btn.active.prayer-active .mode-name {
+  color: var(--accent-light);
+}
+
+/* Всплывающее уведомление (Toast) */
+.toast-notification {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: #27272a;
+  border: 1px solid var(--border-color);
+  color: #f4f4f5;
+  padding: 10px 18px;
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  max-width: 90vw;
+  text-align: center;
+}
+
+.toast-notification.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* Модальное окно массовой загрузки */

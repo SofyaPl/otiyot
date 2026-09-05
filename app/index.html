@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Отиёт">
-  <link rel="manifest" href="manifest.json?v=13">
+  <link rel="manifest" href="manifest.json?v=14">
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=13">
+  <link rel="stylesheet" href="style.css?v=14">
 </head>
 <body>
   <div id="app" class="app-container">
@@ -63,6 +63,10 @@
             <div class="card-header">
               <span class="category-pill" id="card-cat-label">Утро</span>
               <div class="header-right-btns">
+                <button type="button" class="speech-mode-badge mode-study" id="btn-card-mode-toggle" title="Режим озвучки Имени: Учебный (А-шем) / Молитва (Адонай). Нажмите для переключения">
+                  <span class="mode-badge-icon">🎓</span>
+                  <span class="mode-badge-text">Учебный</span>
+                </button>
                 <button class="audio-btn" id="btn-play-audio" title="Прослушать произношение">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
                 </button>
@@ -92,6 +96,10 @@
             <div class="card-header">
               <span class="category-pill back-pill" id="card-back-cat-label">Перевод & Звучание</span>
               <div class="header-right-btns">
+                <button type="button" class="speech-mode-badge mode-study" id="btn-card-mode-toggle-back" title="Режим озвучки Имени: Учебный (А-шем) / Молитва (Адонай). Нажмите для переключения">
+                  <span class="mode-badge-icon">🎓</span>
+                  <span class="mode-badge-text">Учебный</span>
+                </button>
                 <button class="audio-btn" id="btn-play-audio-back" title="Прослушать произношение">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
                 </button>
@@ -288,7 +296,30 @@
 
             <!-- Блок: Скорость озвучки (синтезатор речи) -->
             <div class="settings-section">
-              <div class="settings-section-title">Скорость озвучки (синтезатор речи)</div>
+              <div class="settings-section-title">Озвучка молитв (синтезатор речи)</div>
+
+              <div style="margin-bottom: 12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                  <span style="font-size:13px; color:var(--text-secondary); font-weight:600;">Режим произнесения Имени Творца:</span>
+                  <span id="settings-divine-mode-status" style="font-size:11px; padding:2px 8px; border-radius:10px; background:rgba(16,185,129,0.15); color:#34d399; font-weight:600;">Учебный (А-шем)</span>
+                </div>
+                <div class="divine-mode-options">
+                  <button type="button" class="divine-mode-btn active study-active" data-mode="study" id="btn-mode-study">
+                    <span class="mode-icon">🎓</span>
+                    <span class="mode-name">Учебный режим</span>
+                    <span class="mode-sub">А-шем / Элокейну</span>
+                  </button>
+                  <button type="button" class="divine-mode-btn" data-mode="prayer" id="btn-mode-prayer">
+                    <span class="mode-icon">✡️</span>
+                    <span class="mode-name">Режим молитвы</span>
+                    <span class="mode-sub">Адонай / Элоhейну</span>
+                  </button>
+                </div>
+                <p class="settings-hint" id="settings-divine-mode-desc">
+                  <strong>Учебный режим (активен):</strong> традиционная благочестивая замена Имени. Позволяет спокойно тренироваться в любом месте, в дороге и до омовения рук. Всегда включается при каждом запуске приложения.
+                </p>
+              </div>
+
               <div class="speech-rate-box">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                   <span style="font-size:13px; color:var(--text-secondary);">Темп речи для изучения:</span>
@@ -302,7 +333,7 @@
                 </div>
               </div>
               <button type="button" id="btn-test-speech-rate" class="btn secondary-btn" style="width:100%; margin-top:6px; justify-content:center; gap:6px; font-size:12px; padding:7px 10px;">
-                <span>🔊 Прослушать пример в этом темпе</span>
+                <span>🔊 Прослушать пример в этом режиме и темпе</span>
               </button>
               <p class="settings-hint" style="margin-top:6px;">Синтезатор речи встроен в телефон/браузер (Web Speech API). При наличии прикрепленного MP3-файла играет настоящая запись.</p>
             </div>
@@ -458,9 +489,12 @@
       </div>
     </div>
 
+    <!-- Всплывающее уведомление (Toast) -->
+    <div id="toast-notification" class="toast-notification" role="status" aria-live="polite"></div>
+
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="app.js?v=13"></script>
+  <script src="app.js?v=14"></script>
 </body>
 </html>

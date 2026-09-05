@@ -125,6 +125,8 @@ class AppState {
     this.currentIndex = 0;
     this.isFlipped = false;
     this.speechRate = this.loadSpeechRate();
+    // Режим озвучки Имени Творца: всегда стартует в Учебном режиме ('study') при каждом запуске приложения
+    this.speechDivineMode = 'study';
   }
 
   loadSpeechRate() {
@@ -222,6 +224,26 @@ const elBtnPlayAudio = document.getElementById('btn-play-audio');
 const elBtnPlayAudioBack = document.getElementById('btn-play-audio-back');
 const elBtnEditCard = document.getElementById('btn-edit-card');
 const elBtnEditCardBack = document.getElementById('btn-edit-card-back');
+
+// Переключатели режима произношения (Учебный / Молитва)
+const elBtnCardModeToggle = document.getElementById('btn-card-mode-toggle');
+const elBtnCardModeToggleBack = document.getElementById('btn-card-mode-toggle-back');
+const elBtnModeStudy = document.getElementById('btn-mode-study');
+const elBtnModePrayer = document.getElementById('btn-mode-prayer');
+const elSettingsDivineModeDesc = document.getElementById('settings-divine-mode-desc');
+const elSettingsDivineModeStatus = document.getElementById('settings-divine-mode-status');
+const elToastNotification = document.getElementById('toast-notification');
+
+let toastTimeout = null;
+function showToast(message) {
+  if (!elToastNotification) return;
+  elToastNotification.textContent = message;
+  elToastNotification.classList.add('show');
+  if (toastTimeout) clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
+    elToastNotification.classList.remove('show');
+  }, 2800);
+}
 
 // Элементы карточки (Back)
 const elCardBack = document.querySelector('.card-back');
@@ -321,6 +343,7 @@ function init() {
   renderCurrentCard();
   setupTouchSwipe();
   setupEventListeners();
+  updateSpeechModeUI();
   // Мягкая фоновая проверка обновлений базы при запуске с интернетом
   setTimeout(() => {
     syncCardsWithRepo(false);
@@ -519,22 +542,82 @@ function playAudioForCurrentCard() {
   fallbackSpeech(card.hebrew);
 }
 
-function prepareHebrewForSpeech(text) {
+function setSpeechDivineMode(mode, showNotification = true) {
+  state.speechDivineMode = mode;
+  updateSpeechModeUI();
+
+  if (showNotification) {
+    if (mode === 'prayer') {
+      showToast('✡️ Включён режим молитвы: Адонай / Элоhейну (до перезапуска)');
+    } else {
+      showToast('🎓 Включён учебный режим: А-шем / Элокейну');
+    }
+  }
+}
+
+function updateSpeechModeUI() {
+  const isStudy = (state.speechDivineMode === 'study');
+
+  // Бейджи на карточках (лицевая и оборотная сторона)
+  [elBtnCardModeToggle, elBtnCardModeToggleBack].forEach(btn => {
+    if (!btn) return;
+    btn.className = `speech-mode-badge ${isStudy ? 'mode-study' : 'mode-prayer'}`;
+    btn.innerHTML = isStudy
+      ? '<span class="mode-badge-icon">🎓</span><span class="mode-badge-text">Учебный</span>'
+      : '<span class="mode-badge-icon">✡️</span><span class="mode-badge-text">Молитва</span>';
+    btn.title = isStudy
+      ? 'Режим произношения: Учебный (А-шем / Элокейну). Нажмите, чтобы переключить на режим молитвы.'
+      : 'Режим произношения: Молитва (Адонай / Элоhейну). Нажмите, чтобы вернуть учебный режим.';
+  });
+
+  // Кнопки в настройках
+  if (elBtnModeStudy) {
+    elBtnModeStudy.className = `divine-mode-btn ${isStudy ? 'active study-active' : ''}`;
+  }
+  if (elBtnModePrayer) {
+    elBtnModePrayer.className = `divine-mode-btn ${!isStudy ? 'active prayer-active' : ''}`;
+  }
+
+  // Описание и статус в настройках
+  if (elSettingsDivineModeDesc) {
+    elSettingsDivineModeDesc.innerHTML = isStudy
+      ? '<strong>Учебный режим (активен):</strong> традиционная благочестивая замена Имени (А-шем / Элокейну). Позволяет спокойно тренироваться в любом месте, в дороге и до омовения рук. Включается автоматически при каждом открытии приложения.'
+      : '<strong style="color:var(--accent-light);">Режим молитвы (активен):</strong> каноническое произношение Имени (Адонай / Элоhейну) для точного разучивания перед настоящей молитвой. Действует до перезапуска приложения.';
+  }
+
+  if (elSettingsDivineModeStatus) {
+    elSettingsDivineModeStatus.style.background = isStudy ? 'rgba(16,185,129,0.15)' : 'rgba(212,175,55,0.2)';
+    elSettingsDivineModeStatus.style.color = isStudy ? '#34d399' : 'var(--accent-light)';
+    elSettingsDivineModeStatus.textContent = isStudy ? 'Учебный (А-шем)' : 'Молитва (Адонай)';
+  }
+}
+
+function prepareHebrewForSpeech(text, mode = state.speechDivineMode) {
   if (!text) return '';
   let s = text;
+  const isStudy = (mode === 'study');
 
-  // 1. Замена обозначений Имени Творца на каноническое произношение «Адонай» (אדונאי)
-  // Пары букв юд с любыми огласовками, дефисами, кавычками: יְ‑יָ, י-י, י‑י, י־י, י״י, יי, י'י
-  s = s.replace(/(^|[^\u05D0-\u05EA])\u05D9[\u0591-\u05C7\u200B-\u200F\u2010-\u2014\u05BE\-\s'\"״׳]*\u05D9[\u0591-\u05C7]*(?=[^\u05D0-\u05EA]|$)/g, '$1 אדונאי ');
+  // 1. Замена обозначений Имени Творца:
+  // В учебном режиме: «А-шем» (הַשֵּׁם)
+  // В режиме молитвы: «Адонай» (אדונאי)
+  const divineReplacement = isStudy ? ' הַשֵּׁם ' : ' אדונאי ';
+
+  // Пары букв юд с любыми огласовками/дефисами: יְ‑יָ, י-י, י‑י, י־י, י״י, יי, י'י
+  s = s.replace(/(^|[^\u05D0-\u05EA])\u05D9[\u0591-\u05C7\u200B-\u200F\u2010-\u2014\u05BE\-\s'\"״׳]*\u05D9[\u0591-\u05C7]*(?=[^\u05D0-\u05EA]|$)/g, '$1' + divineReplacement);
 
   // Тетраграмматон (יהוה)
-  s = s.replace(/(^|[^\u05D0-\u05EA])\u05D9\u05D4\u05D5\u05D4(?=[^\u05D0-\u05EA]|$)/g, '$1 אדונאי ');
+  s = s.replace(/(^|[^\u05D0-\u05EA])\u05D9\u05D4\u05D5\u05D4(?=[^\u05D0-\u05EA]|$)/g, '$1' + divineReplacement);
 
   // Сокращения «А-шем» (ה' или ד')
   s = s.replace(/(^|[^\u05D0-\u05EA])[\u05D4\u05D3]['׳״](?=[^\u05D0-\u05EA]|$)/g, '$1 הַשֵּׁם ');
 
   // 2. Объединение благочестивых дефисов в Имени «Элоhейну» / «Элоhим» (אֱ‑לֹהֵינוּ -> אֱלֹהֵינוּ)
   s = s.replace(/(\u05D0[\u0591-\u05C7]*)[\u2010-\u2014\u05BE\-'\"״׳]+([\u0591-\u05C7]*\u05DC)/g, '$1$2');
+
+  // В учебном режиме заменяем «hей» на «коф» (Элокейну / Элоким):
+  if (isStudy) {
+    s = s.replace(/([\u05D0\u05D5][\u0591-\u05C7]*\u05DC[\u0591-\u05C7\u05D5]*)\u05D4([\u0591-\u05C7]*[\u05D9\u05DD\u05DF])/g, '$1\u05E7$2');
+  }
 
   // 3. Замена знаков конца стиха (соф пасук ׃) и разделителей на точки с пробелом для естественных пауз
   s = s.replace(/[\u05C0\u05C3׃]/g, '. ');
@@ -553,7 +636,7 @@ function fallbackSpeech(hebrewText) {
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
 
-    const cleanHebrew = prepareHebrewForSpeech(hebrewText);
+    const cleanHebrew = prepareHebrewForSpeech(hebrewText, state.speechDivineMode);
     const utter = new SpeechSynthesisUtterance(cleanHebrew);
     utter.lang = 'he-IL';
 
@@ -1753,6 +1836,36 @@ function setupEventListeners() {
     e.stopPropagation();
     nextCard();
   });
+
+  // Переключение режима произношения (Учебный / Молитва) на карточке
+  if (elBtnCardModeToggle) {
+    elBtnCardModeToggle.addEventListener('click', e => {
+      e.stopPropagation();
+      const nextMode = state.speechDivineMode === 'study' ? 'prayer' : 'study';
+      setSpeechDivineMode(nextMode, true);
+    });
+  }
+
+  if (elBtnCardModeToggleBack) {
+    elBtnCardModeToggleBack.addEventListener('click', e => {
+      e.stopPropagation();
+      const nextMode = state.speechDivineMode === 'study' ? 'prayer' : 'study';
+      setSpeechDivineMode(nextMode, true);
+    });
+  }
+
+  // Переключение режима в настройках
+  if (elBtnModeStudy) {
+    elBtnModeStudy.addEventListener('click', () => {
+      setSpeechDivineMode('study', true);
+    });
+  }
+
+  if (elBtnModePrayer) {
+    elBtnModePrayer.addEventListener('click', () => {
+      setSpeechDivineMode('prayer', true);
+    });
+  }
 
   // Воспроизведение звука
   elBtnPlayAudio.addEventListener('click', e => {
