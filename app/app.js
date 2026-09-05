@@ -124,6 +124,25 @@ class AppState {
     this.currentCategory = 'Все';
     this.currentIndex = 0;
     this.isFlipped = false;
+    this.speechRate = this.loadSpeechRate();
+  }
+
+  loadSpeechRate() {
+    try {
+      const saved = localStorage.getItem('otiyot_speech_rate');
+      if (saved) {
+        const val = parseFloat(saved);
+        if (!isNaN(val) && val >= 0.3 && val <= 1.2) return val;
+      }
+    } catch (e) {}
+    return 0.7; // Спокойный, размеренный темп для изучения (как в Google Переводчике)
+  }
+
+  setSpeechRate(rate) {
+    this.speechRate = rate;
+    try {
+      localStorage.setItem('otiyot_speech_rate', rate.toString());
+    } catch (e) {}
   }
 
   loadCards() {
@@ -456,6 +475,17 @@ function prevCard() {
 // ================= АУДИОПРОИГРЫВАТЕЛЬ =================
 
 let currentAudioObj = null;
+let availableVoices = [];
+
+function updateVoices() {
+  if ('speechSynthesis' in window) {
+    availableVoices = window.speechSynthesis.getVoices();
+  }
+}
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = updateVoices;
+  updateVoices();
+}
 
 function playAudioForCurrentCard() {
   const card = state.getCurrentCard();
@@ -465,6 +495,10 @@ function playAudioForCurrentCard() {
   if (currentAudioObj) {
     currentAudioObj.pause();
     currentAudioObj.currentTime = 0;
+    currentAudioObj = null;
+  }
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
   }
 
   // 1. Если есть прикрепленный аудиофайл (base64 или URL)
@@ -488,11 +522,35 @@ function playAudioForCurrentCard() {
 function fallbackSpeech(hebrewText) {
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
-    // Очистить текст от огласовок для более стабильного произношения синтезатором
-    const cleanHebrew = hebrewText.replace(/[\u0591-\u05C7]/g, '');
+
+    // 1. Очистить текст от огласовок (некудот: 05B0-05C7) и знаков кантилляции (теамим: 0591-05AF)
+    let cleanHebrew = hebrewText.replace(/[\u0591-\u05C7]/g, '');
+
+    // 2. Заменить библейский дефис/маккаф и знаки конца стиха на пробелы/точки для естественных пауз
+    cleanHebrew = cleanHebrew.replace(/[\u05BE\u2010\u2011\-]/g, ' ');
+    cleanHebrew = cleanHebrew.replace(/[\u05C0\u05C3]/g, '. ');
+
+    // 3. Замена традиционных обозначений Имени Творца (י-י, י״י, ה') для правильного проговаривания движком
+    cleanHebrew = cleanHebrew.replace(/\bי[‑\-־\s]*י\b/g, 'אדוני');
+    cleanHebrew = cleanHebrew.replace(/י״י/g, 'אדוני');
+    cleanHebrew = cleanHebrew.replace(/י''י/g, 'אדוני');
+    cleanHebrew = cleanHebrew.replace(/\bה'\b/g, 'השם');
+
     const utter = new SpeechSynthesisUtterance(cleanHebrew);
     utter.lang = 'he-IL';
-    utter.rate = 0.85; // Чуть медленнее для четкости
+
+    // Выбрать специализированный голос иврита, если он доступен в системе
+    if (!availableVoices || availableVoices.length === 0) {
+      updateVoices();
+    }
+    if (availableVoices && availableVoices.length > 0) {
+      const heVoice = availableVoices.find(v => v.lang === 'he-IL' || v.lang === 'he_IL' || (v.lang && v.lang.startsWith('he')));
+      if (heVoice) utter.voice = heVoice;
+    }
+
+    // Спокойный, размеренный темп для изучения молитв (как в Google Переводчике, по умолчанию 0.70x)
+    utter.rate = state.speechRate || 0.7;
+
     window.speechSynthesis.speak(utter);
   } else {
     alert('Чтобы слушать произношение, вы можете прикрепить MP3 файл через кнопку редактирования карточки (карандаш)!');
@@ -1718,6 +1776,27 @@ function setupEventListeners() {
   elBtnExportJson.addEventListener('click', exportCardsToJson);
   elBtnImportJson.addEventListener('change', importCardsFromJson);
   elBtnResetDefault.addEventListener('click', resetToDefaults);
+
+  // Настройка скорости речи
+  const elSpeechRateSlider = document.getElementById('speech-rate-slider');
+  const elSpeechRateVal = document.getElementById('speech-rate-val');
+  const elBtnTestSpeechRate = document.getElementById('btn-test-speech-rate');
+
+  if (elSpeechRateSlider) {
+    elSpeechRateSlider.value = state.speechRate.toString();
+    if (elSpeechRateVal) elSpeechRateVal.textContent = state.speechRate.toFixed(2) + 'x';
+    elSpeechRateSlider.addEventListener('input', () => {
+      const val = parseFloat(elSpeechRateSlider.value);
+      state.setSpeechRate(val);
+      if (elSpeechRateVal) elSpeechRateVal.textContent = val.toFixed(2) + 'x';
+    });
+  }
+
+  if (elBtnTestSpeechRate) {
+    elBtnTestSpeechRate.addEventListener('click', () => {
+      fallbackSpeech('בָּרוּךְ אַתָּה יְ‑יָ אֱ‑לֹהֵינוּ מֶלֶךְ הָעוֹלָם');
+    });
+  }
 
   if (elBtnExportCatalog) {
     elBtnExportCatalog.addEventListener('click', exportCatalogJson);

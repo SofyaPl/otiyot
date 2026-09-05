@@ -957,6 +957,27 @@ body {
   margin: 0 0 6px 2px;
 }
 
+/* Настройка скорости чтения синтезатором речи */
+.speech-rate-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.speech-rate-box input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+  cursor: pointer;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border-color);
+  outline: none;
+}
+
 /* Модальное окно массовой загрузки */
 .bulk-sheet {
   max-width: 660px;
