@@ -17,6 +17,7 @@
   --border-color: #2e323e;
   
   --danger: #ef4444;
+  --radius-full: 9999px;
   --radius-lg: 20px;
   --radius-md: 12px;
   --radius-sm: 8px;
@@ -910,7 +911,7 @@ body {
   padding: 12px 14px;
   background: var(--bg-input);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   color: var(--text-primary);
   font-family: inherit;
   font-size: 15px;
@@ -1551,19 +1552,22 @@ body {
 }
 
 .chip-btn {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-surface);
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
+  font-family: inherit;
   font-size: 13px;
   font-weight: 500;
   padding: 6px 14px;
-  border-radius: var(--radius-full);
+  border-radius: 20px;
   cursor: pointer;
   transition: all 0.2s ease;
   user-select: none;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 5px;
+  line-height: 1.2;
 }
 
 .chip-btn:hover {
@@ -1583,13 +1587,13 @@ body {
 .chip-btn-add {
   border-style: dashed;
   border-color: rgba(212, 175, 55, 0.35);
-  color: var(--accent-light);
+  color: var(--text-secondary);
 }
 
 .chip-btn-add:hover {
-  background: rgba(212, 175, 55, 0.12);
+  background: rgba(212, 175, 55, 0.1);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--accent-light);
 }
 
 .chip-btn-add.active {
@@ -1598,6 +1602,21 @@ body {
   border-style: solid;
   color: var(--accent-light);
   font-weight: 600;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.15);
+}
+
+.chip-add-plus {
+  color: #ef4444;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  display: inline-block;
+}
+
+.chip-add-label {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: inherit;
 }
 
 .form-select {

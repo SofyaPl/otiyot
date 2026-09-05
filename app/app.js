@@ -736,7 +736,7 @@ function setupCategoryPicker(activeCategory = 'Утро') {
 
   const optCustom = document.createElement('option');
   optCustom.value = '__custom__';
-  optCustom.textContent = '➕ Своя новая категория...';
+  optCustom.textContent = '+ Своя новая категория...';
   if (isCustom) optCustom.selected = true;
   elCategorySelect.appendChild(optCustom);
 
@@ -757,7 +757,7 @@ function setupCategoryPicker(activeCategory = 'Утро') {
   const btnCustom = document.createElement('button');
   btnCustom.type = 'button';
   btnCustom.className = `chip-btn chip-btn-add ${isCustom ? 'active' : ''}`;
-  btnCustom.textContent = '➕ Своя';
+  btnCustom.innerHTML = '<span class="chip-add-plus">+</span><span class="chip-add-label">Своя</span>';
   btnCustom.addEventListener('click', (e) => {
     e.preventDefault();
     selectCategory('__custom__');
@@ -780,7 +780,11 @@ function setupCategoryPicker(activeCategory = 'Утро') {
       elCategoryCustomGroup.style.display = 'none';
       elFieldCategory.value = cat;
       elCategoryChips.querySelectorAll('.chip-btn').forEach(b => {
-        b.classList.toggle('active', b.textContent === cat);
+        if (b === btnCustom) {
+          b.classList.remove('active');
+        } else {
+          b.classList.toggle('active', b.textContent === cat);
+        }
       });
       btnCustom.classList.remove('active');
     }
@@ -2005,7 +2009,7 @@ function setupEventListeners() {
   // Кнопка принудительного обновления и версия
   const elAppVersionBadge = document.getElementById('app-version-badge');
   if (elAppVersionBadge) {
-    elAppVersionBadge.textContent = 'v19';
+    elAppVersionBadge.textContent = 'v20';
   }
 
   const elBtnForceUpdateApp = document.getElementById('btn-force-update-app');
