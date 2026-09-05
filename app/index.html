@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Отиёт">
-  <link rel="manifest" href="manifest.json?v=16">
+  <link rel="manifest" href="manifest.json?v=17">
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=16">
+  <link rel="stylesheet" href="style.css?v=17">
 </head>
 <body>
   <div id="app" class="app-container">
@@ -63,8 +63,8 @@
             <div class="card-header">
               <span class="category-pill" id="card-cat-label">Утро</span>
               <div class="header-right-btns">
-                <button type="button" class="speech-mode-badge mode-study" id="btn-card-mode-toggle" title="Режим произношения: Учебный (А-шем) / Молитва (Адонай). Нажмите для переключения">
-                  <span class="mode-badge-text">Учебный</span>
+                <button type="button" class="speech-mode-badge mode-study" id="btn-card-mode-toggle" title="Режим произношения: Тренировка (А-шем) / Молитва (Адонай). Нажмите для переключения">
+                  <span class="mode-badge-text">Тренировка</span>
                 </button>
                 <button class="audio-btn" id="btn-play-audio" title="Прослушать произношение">
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
@@ -95,8 +95,8 @@
             <div class="card-header">
               <span class="category-pill" id="card-back-cat-label">Утро</span>
               <div class="header-right-btns">
-                <button type="button" class="speech-mode-badge mode-study" id="btn-card-mode-toggle-back" title="Режим произношения: Учебный (А-шем) / Молитва (Адонай). Нажмите для переключения">
-                  <span class="mode-badge-text">Учебный</span>
+                <button type="button" class="speech-mode-badge mode-study" id="btn-card-mode-toggle-back" title="Режим произношения: Тренировка (А-шем) / Молитва (Адонай). Нажмите для переключения">
+                  <span class="mode-badge-text">Тренировка</span>
                 </button>
                 <button class="audio-btn" id="btn-play-audio-back" title="Прослушать произношение">
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
@@ -299,11 +299,11 @@
               <div style="margin-bottom: 12px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; gap:8px;">
                   <span style="font-size:13px; color:var(--text-secondary); font-weight:600;">Режим произнесения Имени:</span>
-                  <span id="settings-divine-mode-status" class="settings-divine-badge is-study">Учебный<br>(А&#8209;шем)</span>
+                  <span id="settings-divine-mode-status" class="settings-divine-badge is-study">Тренировка<br>(А&#8209;шем)</span>
                 </div>
                 <div class="divine-mode-options">
                   <button type="button" class="divine-mode-btn active study-active" data-mode="study" id="btn-mode-study">
-                    <span class="mode-name">Учебный режим</span>
+                    <span class="mode-name">Режим тренировки</span>
                     <span class="mode-sub">А-шем / Элокейну</span>
                   </button>
                   <button type="button" class="divine-mode-btn" data-mode="prayer" id="btn-mode-prayer">
@@ -312,7 +312,7 @@
                   </button>
                 </div>
                 <p class="settings-hint" id="settings-divine-mode-desc">
-                  <strong>Учебный режим (активен):</strong> традиционная благочестивая замена Имени. Позволяет спокойно тренироваться в любом месте, в дороге и до омовения рук. Всегда включается при каждом запуске приложения.
+                  <strong>Режим тренировки (активен):</strong> традиционная благочестивая замена Имени. Позволяет спокойно тренироваться в любом месте, в дороге и до омовения рук. Всегда включается при каждом запуске приложения.
                 </p>
               </div>
 
@@ -403,7 +403,7 @@
           <div class="settings-version-card">
             <div class="settings-version-info">
               <span class="version-label">Текущая версия программы:</span>
-              <span class="version-badge" id="app-version-badge">v16</span>
+              <span class="version-badge" id="app-version-badge">v17</span>
             </div>
             <button type="button" id="btn-force-update-app" class="btn secondary-btn small-btn" style="width: 100%; justify-content: center; gap: 6px;">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
@@ -505,6 +505,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="app.js?v=16"></script>
+  <script src="app.js?v=17"></script>
 </body>
 </html>

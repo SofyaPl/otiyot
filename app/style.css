@@ -335,15 +335,17 @@ body {
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   padding: 0 12px;
   border-radius: 16px;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  line-height: 1;
   background-color: rgba(212, 175, 55, 0.14);
   color: var(--accent-light);
   border: 1px solid rgba(212, 175, 55, 0.35);
+  white-space: nowrap;
 }
 
 .header-right-btns {
@@ -352,42 +354,45 @@ body {
   align-items: center;
 }
 
-/* Бейдж режима произношения (Учебный / Молитва) */
+/* Бейдж режима произношения (Тренировка / Молитва) */
 .speech-mode-badge {
   height: 32px;
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   padding: 0 12px;
   border-radius: 16px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  line-height: 1;
   cursor: pointer;
   transition: all 0.2s ease;
   user-select: none;
+  white-space: nowrap;
   border: 1px solid transparent;
 }
 
 .speech-mode-badge.mode-study {
-  background: rgba(212, 175, 55, 0.14);
-  border-color: rgba(212, 175, 55, 0.45);
-  color: #fbbf24;
+  background-color: rgba(212, 175, 55, 0.14);
+  border-color: rgba(212, 175, 55, 0.35);
+  color: var(--accent-light);
 }
 
 .speech-mode-badge.mode-study:hover, .speech-mode-badge.mode-study:active {
-  background: rgba(212, 175, 55, 0.25);
+  background-color: rgba(212, 175, 55, 0.25);
   border-color: var(--accent);
 }
 
 .speech-mode-badge.mode-prayer {
-  background: rgba(239, 68, 68, 0.14);
-  border-color: rgba(239, 68, 68, 0.5);
+  background-color: rgba(239, 68, 68, 0.14);
+  border-color: rgba(239, 68, 68, 0.45);
   color: #fca5a5;
 }
 
 .speech-mode-badge.mode-prayer:hover, .speech-mode-badge.mode-prayer:active {
-  background: rgba(239, 68, 68, 0.25);
+  background-color: rgba(239, 68, 68, 0.25);
   border-color: #ef4444;
   color: #fee2e2;
 }
@@ -1155,8 +1160,8 @@ body {
 
 .settings-divine-badge.is-study {
   background: rgba(212, 175, 55, 0.14);
-  color: #fbbf24;
-  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: var(--accent-light);
+  border: 1px solid rgba(212, 175, 55, 0.35);
 }
 
 .settings-divine-badge.is-prayer {

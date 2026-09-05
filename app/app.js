@@ -369,6 +369,16 @@ function renderCategories() {
   });
 }
 
+function formatCategoryName(cat) {
+  if (!cat) return 'Общее';
+  const trimmed = String(cat).trim();
+  if (!trimmed) return 'Общее';
+  if (trimmed === trimmed.toUpperCase() && trimmed.length > 1) {
+    return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+  }
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+}
+
 function updateCardContent() {
   const filtered = state.getFilteredCards();
   const card = state.getCurrentCard();
@@ -387,7 +397,7 @@ function updateCardContent() {
   elCardCounter.textContent = `${state.currentIndex + 1} из ${filtered.length}`;
   
   // Заполнение Front
-  elCardCatLabel.textContent = card.category || 'Общее';
+  elCardCatLabel.textContent = formatCategoryName(card.category || 'Общее');
   elCardTitleText.textContent = card.title;
   elCardHebrewText.textContent = card.hebrew;
 
@@ -401,7 +411,7 @@ function updateCardContent() {
   }
 
   // Заполнение Back
-  elCardBackCatLabel.textContent = card.category || 'Перевод';
+  elCardBackCatLabel.textContent = formatCategoryName(card.category || 'Общее');
   elCardTranscriptionText.textContent = card.transcription || 'Транскрипция не заполнена';
   elCardTranslationText.textContent = card.translation || 'Перевод не заполнен';
   elCardBreakdownText.textContent = card.breakdown || '';
@@ -550,7 +560,7 @@ function setSpeechDivineMode(mode, showNotification = true) {
     if (mode === 'prayer') {
       showToast('Включён режим молитвы: Адонай / Элоhейну (до перезапуска)');
     } else {
-      showToast('Включён учебный режим: А-шем / Элокейну');
+      showToast('Включён режим тренировки: А-шем / Элокейну');
     }
   }
 }
@@ -563,11 +573,11 @@ function updateSpeechModeUI() {
     if (!btn) return;
     btn.className = `speech-mode-badge ${isStudy ? 'mode-study' : 'mode-prayer'}`;
     btn.innerHTML = isStudy
-      ? '<span class="mode-badge-text">Учебный</span>'
+      ? '<span class="mode-badge-text">Тренировка</span>'
       : '<span class="mode-badge-text">Молитва</span>';
     btn.title = isStudy
-      ? 'Режим произношения: Учебный (А-шем / Элокейну). Нажмите, чтобы включить режим молитвы.'
-      : 'Режим произношения: Молитва (Адонай / Элоhейну). Нажмите, чтобы вернуть учебный режим.';
+      ? 'Режим произношения: Тренировка (А-шем / Элокейну). Нажмите, чтобы включить режим молитвы.'
+      : 'Режим произношения: Молитва (Адонай / Элоhейну). Нажмите, чтобы включить режим тренировки.';
   });
 
   // Кнопки в настройках
@@ -581,14 +591,14 @@ function updateSpeechModeUI() {
   // Описание и статус в настройках
   if (elSettingsDivineModeDesc) {
     elSettingsDivineModeDesc.innerHTML = isStudy
-      ? '<strong>Учебный режим (активен):</strong> традиционная благочестивая замена Имени (А-шем / Элокейну). Позволяет спокойно тренироваться в любом месте, в дороге и до омовения рук. Включается автоматически при каждом открытии приложения.'
+      ? '<strong>Режим тренировки (активен):</strong> традиционная благочестивая замена Имени (А-шем / Элокейну). Позволяет спокойно тренироваться в любом месте, в дороге и до омовения рук. Включается автоматически при каждом открытии приложения.'
       : '<strong style="color:#fca5a5;">Режим молитвы (активен):</strong> каноническое произношение Имени (Адонай / Элоhейну) для точного разучивания перед настоящей молитвой. Действует до перезапуска приложения.';
   }
 
   if (elSettingsDivineModeStatus) {
     elSettingsDivineModeStatus.className = `settings-divine-badge ${isStudy ? 'is-study' : 'is-prayer'}`;
     elSettingsDivineModeStatus.innerHTML = isStudy
-      ? 'Учебный<br><span style="white-space:nowrap;">(А&#8209;шем)</span>'
+      ? 'Тренировка<br><span style="white-space:nowrap;">(А&#8209;шем)</span>'
       : 'Молитва<br><span style="white-space:nowrap;">(Адонай)</span>';
   }
 }
@@ -1990,7 +2000,7 @@ function setupEventListeners() {
   // Кнопка принудительного обновления и версия
   const elAppVersionBadge = document.getElementById('app-version-badge');
   if (elAppVersionBadge) {
-    elAppVersionBadge.textContent = 'v16';
+    elAppVersionBadge.textContent = 'v17';
   }
 
   const elBtnForceUpdateApp = document.getElementById('btn-force-update-app');
