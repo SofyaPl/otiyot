@@ -582,13 +582,14 @@ function updateSpeechModeUI() {
   if (elSettingsDivineModeDesc) {
     elSettingsDivineModeDesc.innerHTML = isStudy
       ? '<strong>Учебный режим (активен):</strong> традиционная благочестивая замена Имени (А-шем / Элокейну). Позволяет спокойно тренироваться в любом месте, в дороге и до омовения рук. Включается автоматически при каждом открытии приложения.'
-      : '<strong style="color:#93c5fd;">Режим молитвы (активен):</strong> каноническое произношение Имени (Адонай / Элоhейну) для точного разучивания перед настоящей молитвой. Действует до перезапуска приложения.';
+      : '<strong style="color:#fca5a5;">Режим молитвы (активен):</strong> каноническое произношение Имени (Адонай / Элоhейну) для точного разучивания перед настоящей молитвой. Действует до перезапуска приложения.';
   }
 
   if (elSettingsDivineModeStatus) {
-    elSettingsDivineModeStatus.style.background = isStudy ? 'rgba(212,175,55,0.14)' : 'rgba(59,130,246,0.18)';
-    elSettingsDivineModeStatus.style.color = isStudy ? '#fbbf24' : '#93c5fd';
-    elSettingsDivineModeStatus.textContent = isStudy ? 'Учебный (А-шем)' : 'Молитва (Адонай)';
+    elSettingsDivineModeStatus.className = `settings-divine-badge ${isStudy ? 'is-study' : 'is-prayer'}`;
+    elSettingsDivineModeStatus.innerHTML = isStudy
+      ? 'Учебный<br><span style="white-space:nowrap;">(А&#8209;шем)</span>'
+      : 'Молитва<br><span style="white-space:nowrap;">(Адонай)</span>';
   }
 }
 
@@ -1989,7 +1990,7 @@ function setupEventListeners() {
   // Кнопка принудительного обновления и версия
   const elAppVersionBadge = document.getElementById('app-version-badge');
   if (elAppVersionBadge) {
-    elAppVersionBadge.textContent = 'v15';
+    elAppVersionBadge.textContent = 'v16';
   }
 
   const elBtnForceUpdateApp = document.getElementById('btn-force-update-app');
