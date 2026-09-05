@@ -519,23 +519,41 @@ function playAudioForCurrentCard() {
   fallbackSpeech(card.hebrew);
 }
 
+function prepareHebrewForSpeech(text) {
+  if (!text) return '';
+  let s = text;
+
+  // 1. Замена обозначений Имени Творца на каноническое произношение «Адонай» (אדונאי)
+  // Пары букв юд с любыми огласовками, дефисами, кавычками: יְ‑יָ, י-י, י‑י, י־י, י״י, יי, י'י
+  s = s.replace(/(^|[^\u05D0-\u05EA])\u05D9[\u0591-\u05C7\u200B-\u200F\u2010-\u2014\u05BE\-\s'\"״׳]*\u05D9[\u0591-\u05C7]*(?=[^\u05D0-\u05EA]|$)/g, '$1 אדונאי ');
+
+  // Тетраграмматон (יהוה)
+  s = s.replace(/(^|[^\u05D0-\u05EA])\u05D9\u05D4\u05D5\u05D4(?=[^\u05D0-\u05EA]|$)/g, '$1 אדונאי ');
+
+  // Сокращения «А-шем» (ה' или ד')
+  s = s.replace(/(^|[^\u05D0-\u05EA])[\u05D4\u05D3]['׳״](?=[^\u05D0-\u05EA]|$)/g, '$1 הַשֵּׁם ');
+
+  // 2. Объединение благочестивых дефисов в Имени «Элоhейну» / «Элоhим» (אֱ‑לֹהֵינוּ -> אֱלֹהֵינוּ)
+  s = s.replace(/(\u05D0[\u0591-\u05C7]*)[\u2010-\u2014\u05BE\-'\"״׳]+([\u0591-\u05C7]*\u05DC)/g, '$1$2');
+
+  // 3. Замена знаков конца стиха (соф пасук ׃) и разделителей на точки с пробелом для естественных пауз
+  s = s.replace(/[\u05C0\u05C3׃]/g, '. ');
+
+  // 4. Замена маккафа и дефисов между словами на пробелы
+  s = s.replace(/[\u05BE\u2010-\u2014\-]/g, ' ');
+
+  // 5. Очистка от древних знаков кантилляции (теамим 0591-05AF)
+  s = s.replace(/[\u0591-\u05AF]/g, '');
+
+  // 6. Нормализация множественных пробелов
+  return s.replace(/\s+/g, ' ').trim();
+}
+
 function fallbackSpeech(hebrewText) {
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
 
-    // 1. Очистить текст от огласовок (некудот: 05B0-05C7) и знаков кантилляции (теамим: 0591-05AF)
-    let cleanHebrew = hebrewText.replace(/[\u0591-\u05C7]/g, '');
-
-    // 2. Заменить библейский дефис/маккаф и знаки конца стиха на пробелы/точки для естественных пауз
-    cleanHebrew = cleanHebrew.replace(/[\u05BE\u2010\u2011\-]/g, ' ');
-    cleanHebrew = cleanHebrew.replace(/[\u05C0\u05C3]/g, '. ');
-
-    // 3. Замена традиционных обозначений Имени Творца (י-י, י״י, ה') для правильного проговаривания движком
-    cleanHebrew = cleanHebrew.replace(/\bי[‑\-־\s]*י\b/g, 'אדוני');
-    cleanHebrew = cleanHebrew.replace(/י״י/g, 'אדוני');
-    cleanHebrew = cleanHebrew.replace(/י''י/g, 'אדוני');
-    cleanHebrew = cleanHebrew.replace(/\bה'\b/g, 'השם');
-
+    const cleanHebrew = prepareHebrewForSpeech(hebrewText);
     const utter = new SpeechSynthesisUtterance(cleanHebrew);
     utter.lang = 'he-IL';
 
