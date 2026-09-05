@@ -8,11 +8,11 @@ const DEFAULT_CARDS = [
   {
     id: 'card-1',
     category: 'Утро',
-    title: 'Мода ани (Благодарность)',
-    hebrew: 'מוֹדָה אֲנִי לְפָנֶיךָ מֶלֶךְ חַי וְקַיָּם, שֶׁהֶחֱזַרְתָּ בִּי נִשְׁמָתִי בְּחֶמְלָה, רַבָּה אֱמוּנָתֶךָ׃',
-    transcription: 'Мо-да́ а-ни́ ле-фа-не́-ха, мэ́-лех хай ве-ка-я́м, ше-эхэза́рта би нишма-ти́ бе-хем-ла́, ра-ба́ эму-на-тэ́-ха.',
+    title: 'Моде ани (Благодарность)',
+    hebrew: 'מוֹדֶה אֲנִי לְפָנֶיךָ מֶלֶךְ חַי וְקַיָּם, שֶׁהֶחֱזַרְתָּ בִּי נִשְׁמָתִי בְּחֶמְלָה, רַבָּה אֱמוּנָתֶךָ׃',
+    transcription: 'Мо-де́ а-ни́ ле-фа-не́-ха, мэ́-лех хай ве-ка-я́м, ше-эхэза́рта би нишма-ти́ бе-хем-ла́, ра-ба́ эму-на-тэ́-ха.',
     translation: '«Благодарю я Тебя, Владыка живой и сущий, за то, что Ты по милосердию Своему возвратил мне душу мою. Велика вера в Тебя!»',
-    breakdown: 'Женская форма (мода). Произносится сразу после пробуждения, еще не вставая с кровати. Руки соединяются вместе. Имя Творца не упоминается, поэтому можно говорить до омовения рук.',
+    breakdown: 'Произносится сразу после пробуждения, еще не вставая с кровати. Руки соединяются вместе. В женском роде произносится «Мода́ ани» (מוֹדָה אֲנִי). Имя Творца не упоминается, поэтому можно говорить до омовения рук.',
     audio: '',
     image: ''
   },
@@ -130,7 +130,21 @@ class AppState {
     try {
       const saved = localStorage.getItem('otiyot_cards_v1');
       if (saved) {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        let updated = false;
+        parsed.forEach(c => {
+          if (c.id === 'card-1' && c.title && c.title.includes('Мода ани')) {
+            c.title = 'Моде ани (Благодарность)';
+            c.hebrew = 'מוֹדֶה אֲנִי לְפָנֶיךָ מֶלֶךְ חַי וְקַיָּם, שֶׁהֶחֱזַרְתָּ בִּי נִשְׁמָתִי בְּחֶמְלָה, רַבָּה אֱמוּנָתֶךָ׃';
+            c.transcription = 'Мо-де́ а-ни́ ле-фа-не́-ха, мэ́-лех хай ве-ка-я́м, ше-эхэза́рта би нишма-ти́ бе-хем-ла́, ра-ба́ эму-на-тэ́-ха.';
+            c.breakdown = 'Произносится сразу после пробуждения, еще не вставая с кровати. Руки соединяются вместе. В женском роде произносится «Мода́ ани» (מוֹדָה אֲנִי). Имя Творца не упоминается, поэтому можно говорить до омовения рук.';
+            updated = true;
+          }
+        });
+        if (updated) {
+          localStorage.setItem('otiyot_cards_v1', JSON.stringify(parsed));
+        }
+        return parsed;
       }
     } catch (e) {
       console.warn('Ошибка чтения localStorage', e);
@@ -1098,7 +1112,19 @@ async function syncCardsWithRepo(isManual = false) {
 
 // ================= МАССОВАЯ ЗАГРУЗКА ИЗ ТАБЛИЦЫ =================
 
-function openBulkImportModal() {
+let bulkOpenedFromModal = null;
+
+function openBulkImportModal(sourceModal = null) {
+  if (sourceModal) {
+    bulkOpenedFromModal = sourceModal;
+  } else if (elModalSettings && elModalSettings.style.display === 'flex') {
+    bulkOpenedFromModal = elModalSettings;
+  } else if (elModalList && elModalList.style.display === 'flex') {
+    bulkOpenedFromModal = elModalList;
+  } else if (elModalForm && elModalForm.style.display === 'flex') {
+    bulkOpenedFromModal = elModalForm;
+  }
+
   if (elModalSettings) elModalSettings.style.display = 'none';
   if (elModalList) elModalList.style.display = 'none';
   if (elModalForm) elModalForm.style.display = 'none';
@@ -1108,11 +1134,24 @@ function openBulkImportModal() {
   }
 }
 
+function closeBulkImportModal() {
+  if (elModalBulk) elModalBulk.style.display = 'none';
+  if (previewAudioObj) {
+    previewAudioObj.pause();
+    previewAudioObj = null;
+  }
+  updateBulkPreview([]);
+  if (bulkOpenedFromModal) {
+    bulkOpenedFromModal.style.display = 'flex';
+    bulkOpenedFromModal = null;
+  }
+}
+
 function downloadExcelTemplate() {
   const bom = '\uFEFF';
   const csvContent = bom +
     'Категория;Название;Иврит с огласовками;Транскрипция;Перевод;Пояснение;Ссылка на аудио (MP3)\r\n' +
-    'Утро;Мода ани;מוֹדָה אֲנִי לְפָנֶיךָ מֶלֶךְ חַי וְקַיָּם, שֶׁהֶחֱזַרְתָּ בִּי נִשְׁמָתִי בְּחֶמְלָה, רַבָּה אֱמוּנָתֶךָ׃;Мо-да́ а-ни́ ле-фа-не́-ха, мэ́-лех хай ве-ка-я́м, ше-эхэза́рта би нишма-ти́ бе-хем-ла́, ра-ба́ эму-на-тэ́-ха.;«Благодарю я Тебя, Владыка живой и сущий, за то, что Ты по милосердию Своему возвратил мне душу мою. Велика вера в Тебя!»;Произносится сразу после пробуждения, еще не вставая с кровати. Руки соединяются вместе.;\r\n' +
+    'Утро;Моде ани;מוֹדֶה אֲנִי לְפָנֶיךָ מֶלֶךְ חַי וְקַיָּם, שֶׁהֶחֱזַרְתָּ בִּי נִשְׁמָתִי בְּחֶמְלָה, רַבָּה אֱמוּנָתֶךָ׃;Мо-де́ а-ни́ ле-фа-не́-ха, мэ́-лех хай ве-ка-я́м, ше-эхэза́рта би нишма-ти́ бе-хем-ла́, ра-ба́ эму-на-тэ́-ха.;«Благодарю я Тебя, Владыка живой и сущий, за то, что Ты по милосердию Своему возвратил мне душу мою. Велика вера в Тебя!»;Произносится сразу после пробуждения, еще не вставая с кровати. Руки соединяются вместе. В женском роде произносится «Мода́ ани» (מוֹדָה אֲנִי).;\r\n' +
     'Еда;Шеаколь;בָּרוּךְ אַתָּה יְהֹוָה אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, שֶׁהַכֹּל נִהְיָה בִּדְבָרוֹ׃;Ба-ру́х а-та́ А-до-на́й, Э-ло-э́й-ну мэ́-лех а-о-ла́м, ше-а-ко́ль ни-йя́ бид-ва-ро́.;«Благословен Ты, Господь, Бог наш, Царь вселенной, по слову Которого возникло всё!»;Произносится перед питьем воды, чая, напитков, а также перед мясом, рыбой, сыром и яйцами.;\r\n' +
     'Шабат;Кидуш (начало);יוֹם הַשִּׁשִּׁי. וַיְכֻלּוּ הַשָּׁמַיִם וְהָאָרֶץ וְכָל צְבָאָם׃;Йом а-ши-ши́. Ва-йху-лу́ а-ша-ма́-им ве-а-а́-рец ве-холь це-ва-а́м.;«День шестой. И завершены были небо и земля, и все воинство их.»;Начало пятничного вечернего кидуша над бокалом вина или виноградного сока.;\r\n';
 
@@ -1418,11 +1457,13 @@ function handleBulkAudioFiles(e) {
     // 1. Точное совпадение
     targetCard = state.cards.find(c => c.title.trim().toLowerCase() === cleanName);
 
-    // 2. Частичное совпадение
+    // 2. Частичное совпадение (поддерживаем как «моде ани», так и «мода ани»)
     if (!targetCard) {
+      const normalizedName = cleanName.replace(/мода/g, 'моде');
       targetCard = state.cards.find(c => {
         const t = c.title.trim().toLowerCase();
-        return cleanName.includes(t) || t.includes(cleanName);
+        const normT = t.replace(/мода/g, 'моде');
+        return normalizedName.includes(normT) || normT.includes(normalizedName);
       });
     }
 
@@ -1462,7 +1503,7 @@ function handleBulkAudioFiles(e) {
         message += `Успешно прикреплено ${matched.length} аудио к карточкам:\n• ` + matched.join('\n• ');
       }
       if (unmatched.length > 0) {
-        message += `\n\nНе удалось сопоставить ${unmatched.length} файлов (назовите файл так же, как карточку, например «Мода ани.mp3» или «1.mp3»):\n• ` + unmatched.join('\n• ');
+        message += `\n\nНе удалось сопоставить ${unmatched.length} файлов (назовите файл так же, как карточку, например «Моде ани.mp3» или «1.mp3»):\n• ` + unmatched.join('\n• ');
       }
       alert(message || 'Файлы обработаны.');
     }
@@ -1592,6 +1633,7 @@ function applyBulkAdd() {
   renderCategories();
   state.currentIndex = state.cards.length - addedCount;
   renderCurrentCard();
+  bulkOpenedFromModal = null;
   if (elModalBulk) elModalBulk.style.display = 'none';
   if (elBulkTextInput) elBulkTextInput.value = '';
   updateBulkPreview([]);
@@ -1606,6 +1648,7 @@ function applyBulkReplace() {
     state.currentIndex = 0;
     renderCategories();
     renderCurrentCard();
+    bulkOpenedFromModal = null;
     if (elModalBulk) elModalBulk.style.display = 'none';
     if (elBulkTextInput) elBulkTextInput.value = '';
     updateBulkPreview([]);
@@ -1681,10 +1724,10 @@ function setupEventListeners() {
   }
 
   // Модалка массовой загрузки из таблицы
-  if (elBtnOpenBulk) elBtnOpenBulk.addEventListener('click', openBulkImportModal);
-  if (elBtnOpenBulkFromList) elBtnOpenBulkFromList.addEventListener('click', openBulkImportModal);
-  if (elBtnSwitchToBulk) elBtnSwitchToBulk.addEventListener('click', openBulkImportModal);
-  if (elBtnCloseBulk) elBtnCloseBulk.addEventListener('click', () => elModalBulk.style.display = 'none');
+  if (elBtnOpenBulk) elBtnOpenBulk.addEventListener('click', () => openBulkImportModal(elModalSettings));
+  if (elBtnOpenBulkFromList) elBtnOpenBulkFromList.addEventListener('click', () => openBulkImportModal(elModalList));
+  if (elBtnSwitchToBulk) elBtnSwitchToBulk.addEventListener('click', () => openBulkImportModal(elModalForm));
+  if (elBtnCloseBulk) elBtnCloseBulk.addEventListener('click', closeBulkImportModal);
   if (elBtnDownloadTemplate) elBtnDownloadTemplate.addEventListener('click', downloadExcelTemplate);
   if (elInputBulkFile) elInputBulkFile.addEventListener('change', handleBulkFileInput);
   if (elBulkTextInput) {
@@ -1726,12 +1769,30 @@ function setupEventListeners() {
   [elModalList, elModalForm, elModalSettings, elModalBulk].forEach(m => {
     if (!m) return;
     m.addEventListener('click', e => {
-      if (e.target === m) m.style.display = 'none';
+      if (e.target === m) {
+        if (m === elModalBulk) {
+          closeBulkImportModal();
+        } else {
+          m.style.display = 'none';
+        }
+      }
     });
   });
 
-  // Клавиатура для компьютера (Стрелки влево/вправо и Пробел для переворота)
+  // Клавиатура для компьютера (Стрелки влево/вправо и Пробел для переворота, Escape для закрытия окон)
   window.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if (elModalBulk && elModalBulk.style.display === 'flex') {
+        closeBulkImportModal();
+      } else if (elModalForm && elModalForm.style.display === 'flex') {
+        elModalForm.style.display = 'none';
+      } else if (elModalSettings && elModalSettings.style.display === 'flex') {
+        elModalSettings.style.display = 'none';
+      } else if (elModalList && elModalList.style.display === 'flex') {
+        elModalList.style.display = 'none';
+      }
+      return;
+    }
     if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
     if (e.code === 'Space') {
       e.preventDefault();
