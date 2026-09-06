@@ -1262,6 +1262,55 @@ body {
   color: #fee2e2;
 }
 
+/* Карточка обратной связи / контактов */
+.settings-contact-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.contact-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.contact-header svg {
+  color: var(--accent-light);
+  flex-shrink: 0;
+}
+
+.contact-email-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent-light);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  width: fit-content;
+  transition: all 0.2s ease;
+  word-break: break-all;
+}
+
+.contact-email-link:hover, .contact-email-link:active {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.contact-email-link svg {
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
 /* Карточка информации о версии и обновление */
 .settings-version-card {
   margin-top: 14px;
