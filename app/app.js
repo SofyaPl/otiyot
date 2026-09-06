@@ -308,9 +308,15 @@ const elFieldImageFilename = document.getElementById('field-image-filename');
 const elBtnExportJson = document.getElementById('btn-export-json');
 const elBtnImportJson = document.getElementById('btn-import-json');
 const elBtnResetDefault = document.getElementById('btn-reset-default');
-const elBtnExportCatalog = document.getElementById('btn-export-catalog');
 const elBtnDownloadAllAudio = document.getElementById('btn-download-all-audio');
 const elInputSettingsBulkAudio = document.getElementById('input-settings-bulk-audio');
+
+// Модалка подтверждения сброса к каталогу
+const elModalResetConfirm = document.getElementById('modal-reset-confirm');
+const elBtnCloseResetConfirm = document.getElementById('btn-close-reset-confirm');
+const elBtnResetDownloadBackup = document.getElementById('btn-reset-download-backup');
+const elBtnResetConfirmAction = document.getElementById('btn-reset-confirm-action');
+const elBtnResetCancel = document.getElementById('btn-reset-cancel');
 
 // Модалка массовой загрузки
 const elModalBulk = document.getElementById('modal-bulk-import');
@@ -345,10 +351,6 @@ function init() {
   setupTouchSwipe();
   setupEventListeners();
   updateSpeechModeUI();
-  // Мягкая фоновая проверка обновлений базы при запуске с интернетом
-  setTimeout(() => {
-    syncCardsWithRepo(false);
-  }, 1000);
 }
 
 function renderCategories() {
@@ -1195,22 +1197,10 @@ function exportCardsToJson() {
   const dlAnchor = document.createElement('a');
   dlAnchor.setAttribute('href', dataStr);
   dlAnchor.setAttribute('download', `otiyot_backup_${new Date().toISOString().slice(0, 10)}.json`);
-  dlAnchor.click();
-}
-
-function exportCatalogJson() {
-  const catalogData = {
-    version: 1,
-    updatedAt: new Date().toISOString().slice(0, 10),
-    cards: state.cards
-  };
-  const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(catalogData, null, 2));
-  const dlAnchor = document.createElement('a');
-  dlAnchor.setAttribute('href', dataStr);
-  dlAnchor.setAttribute('download', 'prayers.json');
   document.body.appendChild(dlAnchor);
   dlAnchor.click();
   document.body.removeChild(dlAnchor);
+  showToast('Резервная копия скачана');
 }
 
 function importCardsFromJson(e) {
@@ -1220,28 +1210,107 @@ function importCardsFromJson(e) {
   reader.onload = ev => {
     try {
       const parsed = JSON.parse(ev.target.result);
-      if (Array.isArray(parsed)) {
-        state.cards = parsed;
-        state.saveCards();
-        renderCategories();
-        renderCurrentCard();
-        alert('Карточки успешно восстановлены из файла!');
-        elModalSettings.style.display = 'none';
+      const importedCards = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.cards) ? parsed.cards : null);
+      if (importedCards && importedCards.length > 0) {
+        const count = importedCards.length;
+        const confirmed = confirm(
+          `⚠️ Внимание: восстановление из резервной копии полностью заменит текущий список карточек на ${count} ${pluralizeCards(count)} из файла.\n\n` +
+          `Все ваши текущие карточки, порядок и изменения будут перезаписаны.\n` +
+          `(Для добавления карточек к существующим без перезаписи используйте «Загрузить из таблицы»).\n\n` +
+          `Заменить всю базу карточками из этого файла?`
+        );
+        if (confirmed) {
+          state.cards = importedCards.map((c, idx) => ({
+            id: c.id || ('card-' + Date.now() + '-' + idx),
+            category: String(c.category || 'Молитвы').trim(),
+            title: String(c.title || `Молитва ${idx + 1}`).trim(),
+            hebrew: String(c.hebrew || '').trim(),
+            transcription: String(c.transcription || '').trim(),
+            translation: String(c.translation || '').trim(),
+            breakdown: String(c.breakdown || '').trim(),
+            audio: String(c.audio || '').trim(),
+            image: String(c.image || '').trim()
+          }));
+          state.currentIndex = 0;
+          state.saveCards();
+          renderCategories();
+          renderCurrentCard();
+          showToast(`Восстановлено ${count} ${pluralizeCards(count)}`);
+          alert(`Успешно!\nВся база карточек заменена на ${count} ${pluralizeCards(count)} из резервной копии.`);
+          if (elModalSettings) elModalSettings.style.display = 'none';
+        }
+      } else {
+        alert('В выбранном файле JSON не найдено молитв или карточек.');
       }
     } catch (err) {
-      alert('Ошибка при чтении файла JSON: некорректный формат.');
+      alert('Ошибка при чтении файла JSON: некорректный формат файла.');
+    } finally {
+      e.target.value = '';
     }
   };
-  reader.readAsText(file);
+  reader.readAsText(file, 'utf-8');
 }
 
-function resetToDefaults() {
-  if (confirm('Сбросить все карточки к стандартному набору? Ваши изменения будут заменены.')) {
-    state.cards = DEFAULT_CARDS;
+function openResetConfirmModal() {
+  if (elModalResetConfirm) {
+    elModalResetConfirm.style.display = 'flex';
+  }
+}
+
+function closeResetConfirmModal() {
+  if (elModalResetConfirm) {
+    elModalResetConfirm.style.display = 'none';
+  }
+}
+
+async function executeResetToCatalog() {
+  const btn = document.getElementById('btn-reset-confirm-action');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span>⏳ Загружаем общий каталог...</span>';
+  }
+
+  try {
+    const res = await fetch(`./prayers.json?t=${Date.now()}`);
+    let repoCards = [];
+    if (res.ok) {
+      const data = await res.json();
+      repoCards = Array.isArray(data.cards) ? data.cards : (Array.isArray(data) ? data : []);
+    }
+    if (!repoCards || repoCards.length === 0) {
+      repoCards = DEFAULT_CARDS;
+    }
+
+    state.cards = JSON.parse(JSON.stringify(repoCards));
+    state.currentIndex = 0;
     state.saveCards();
     renderCategories();
     renderCurrentCard();
-    elModalSettings.style.display = 'none';
+
+    closeResetConfirmModal();
+    if (elModalSettings) elModalSettings.style.display = 'none';
+
+    showToast('Каталог сброшен к официальному');
+    alert(`Готово!\nБаза возвращена к официальному общему каталогу молитв (${state.cards.length} ${pluralizeCards(state.cards.length)}).`);
+  } catch (err) {
+    console.warn('Ошибка сброса к каталогу:', err);
+    state.cards = JSON.parse(JSON.stringify(DEFAULT_CARDS));
+    state.currentIndex = 0;
+    state.saveCards();
+    renderCategories();
+    renderCurrentCard();
+    closeResetConfirmModal();
+    if (elModalSettings) elModalSettings.style.display = 'none';
+    showToast('База сброшена к встроенному каталогу');
+    alert(`Готово!\nБаза возвращена к исходному набору молитв (${state.cards.length} ${pluralizeCards(state.cards.length)}).`);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+        <span>Сбросить всё к общему каталогу</span>
+      `;
+    }
   }
 }
 
@@ -1259,12 +1328,21 @@ async function syncCardsWithRepo(isManual = false) {
     }
 
     if (repoCards.length === 0) {
-      if (isManual) alert('В общем каталоге нет карточек.');
+      if (isManual) alert('В общем каталоге пока нет карточек.');
       return;
     }
 
     const existingIds = new Set(state.cards.map(c => c.id));
-    const newCards = repoCards.filter(c => !existingIds.has(c.id));
+    const existingTitles = new Set(state.cards.map(c => c.title.trim().toLowerCase()));
+    const existingHebrews = new Set(state.cards.map(c => c.hebrew.replace(/[\u0591-\u05C7\s]/g, '')));
+
+    const newCards = repoCards.filter(c => {
+      if (existingIds.has(c.id)) return false;
+      if (existingTitles.has(c.title.trim().toLowerCase())) return false;
+      const cleanHeb = c.hebrew.replace(/[\u0591-\u05C7\s]/g, '');
+      if (cleanHeb && existingHebrews.has(cleanHeb)) return false;
+      return true;
+    });
 
     if (newCards.length > 0) {
       state.cards.push(...newCards);
@@ -1273,29 +1351,18 @@ async function syncCardsWithRepo(isManual = false) {
       renderCurrentCard();
 
       if (isManual) {
-        alert(`Успешно!\nДобавлено новых молитв из общего каталога: ${newCards.length}.\nВаш порядок и добавленные карточки сохранены.`);
-      } else {
-        console.log(`[Auto-sync] Добавлено новых молитв из каталога: ${newCards.length}`);
+        showToast(`Добавлено ${newCards.length} ${pluralizeCards(newCards.length)}`);
+        alert(`Успешно!\nДобавлено новых молитв из общего каталога: ${newCards.length} ${pluralizeCards(newCards.length)}.\nВаши личные карточки и настроенный порядок сохранены.`);
       }
     } else {
       if (isManual) {
-        alert(`База молитв в актуальном состоянии!\nВсе доступные молитвы из общего каталога (${repoCards.length} шт.) уже добавлены в ваш список.`);
+        alert(`База молитв в актуальном состоянии!\nВсе доступные молитвы из общего каталога (всего ${repoCards.length} ${pluralizeCards(repoCards.length)}) уже есть в вашем списке.\nНовых молитв на сервере не обнаружено.`);
       }
     }
   } catch (err) {
     console.warn('Ошибка синхронизации с базой:', err);
     if (isManual) {
-      const existingIds = new Set(state.cards.map(c => c.id));
-      const newCards = DEFAULT_CARDS.filter(c => !existingIds.has(c.id));
-      if (newCards.length > 0) {
-        state.cards.push(...newCards);
-        state.saveCards();
-        renderCategories();
-        renderCurrentCard();
-        alert(`Добавлено ${newCards.length} стандартных молитв из встроенной базы.`);
-      } else {
-        alert('Все доступные молитвы уже есть в вашем списке.');
-      }
+      alert('Не удалось связаться с сервером каталога. Проверьте подключение к интернету.');
     }
   }
 }
@@ -1766,6 +1833,61 @@ function pluralizeCards(n) {
   return 'карточек';
 }
 
+function tryParseJsonCards(text) {
+  if (!text) return null;
+  const trimmed = text.trim();
+  if (!trimmed.startsWith('[') && !trimmed.startsWith('{')) return null;
+
+  try {
+    const parsed = JSON.parse(trimmed);
+    const rawList = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.cards) ? parsed.cards : null);
+    if (!rawList || !Array.isArray(rawList)) return null;
+
+    const cards = [];
+    rawList.forEach((c, idx) => {
+      if (!c || typeof c !== 'object') return;
+      const hebrew = String(c.hebrew || '').trim();
+      let title = String(c.title || '').trim();
+      let category = String(c.category || '').trim();
+      const transcription = String(c.transcription || '').trim();
+      const translation = String(c.translation || '').trim();
+      const breakdown = String(c.breakdown || '').trim();
+      const audio = String(c.audio || '').trim();
+      const image = String(c.image || '').trim();
+
+      if (!title) {
+        if (hebrew) {
+          title = hebrew.split(/\s+/).slice(0, 3).join(' ');
+        } else {
+          title = `Молитва ${idx + 1}`;
+        }
+      }
+
+      if (!category) {
+        category = 'Молитвы';
+      }
+
+      if (hebrew || title || translation) {
+        cards.push({
+          id: c.id || ('card-' + Date.now() + '-' + idx + '-' + Math.random().toString(36).substr(2, 5)),
+          category,
+          title,
+          hebrew,
+          transcription,
+          translation,
+          breakdown,
+          audio,
+          image
+        });
+      }
+    });
+
+    return cards.length > 0 ? cards : null;
+  } catch (err) {
+    return null;
+  }
+}
+
 function handleBulkTextChange() {
   if (!elBulkTextInput) return;
   const text = elBulkTextInput.value;
@@ -1773,6 +1895,15 @@ function handleBulkTextChange() {
     updateBulkPreview([]);
     return;
   }
+
+  // 1. Проверяем, не является ли введенный текст JSON (копией или каталогом)
+  const jsonCards = tryParseJsonCards(text);
+  if (jsonCards) {
+    updateBulkPreview(jsonCards);
+    return;
+  }
+
+  // 2. Иначе парсим как таблицу CSV / TSV / Excel
   const rows = parseCsvOrTsv(text);
   const cards = parseRowsToCards(rows);
   updateBulkPreview(cards);
@@ -1799,6 +1930,8 @@ function handleBulkFileInput(e) {
         updateBulkPreview(cards);
       } catch (err) {
         alert('Ошибка при чтении Excel файла: ' + err.message);
+      } finally {
+        e.target.value = '';
       }
     };
     reader.readAsArrayBuffer(file);
@@ -1810,6 +1943,7 @@ function handleBulkFileInput(e) {
         elBulkTextInput.value = text;
       }
       handleBulkTextChange();
+      e.target.value = '';
     };
     reader.readAsText(file, 'utf-8');
   }
@@ -1827,12 +1961,13 @@ function applyBulkAdd() {
   if (elModalBulk) elModalBulk.style.display = 'none';
   if (elBulkTextInput) elBulkTextInput.value = '';
   updateBulkPreview([]);
+  showToast(`Добавлено ${addedCount} ${pluralizeCards(addedCount)}`);
   alert(`Готово!\nУспешно добавлено ${addedCount} ${pluralizeCards(addedCount)}.\nОни сохранены в вашем приложении!`);
 }
 
 function applyBulkReplace() {
   if (!parsedBulkCards || parsedBulkCards.length === 0) return;
-  if (confirm(`Вы уверены?\nЭто заменит ВСЕ текущие карточки на ${parsedBulkCards.length} ${pluralizeCards(parsedBulkCards.length)} из таблицы.`)) {
+  if (confirm(`Вы уверены?\nЭто заменит ВСЕ текущие карточки на ${parsedBulkCards.length} ${pluralizeCards(parsedBulkCards.length)} из таблицы/файла.`)) {
     state.cards = [...parsedBulkCards];
     state.saveCards();
     state.currentIndex = 0;
@@ -1842,7 +1977,8 @@ function applyBulkReplace() {
     if (elModalBulk) elModalBulk.style.display = 'none';
     if (elBulkTextInput) elBulkTextInput.value = '';
     updateBulkPreview([]);
-    alert(`Готово! В приложении теперь сохранены ${state.cards.length} ${pluralizeCards(state.cards.length)} из таблицы.`);
+    showToast(`Заменено на ${state.cards.length} ${pluralizeCards(state.cards.length)}`);
+    alert(`Готово!\nВ приложении теперь сохранены ${state.cards.length} ${pluralizeCards(state.cards.length)} из загруженных данных.`);
   }
 }
 
@@ -1937,7 +2073,13 @@ function setupEventListeners() {
   elBtnCloseSettings.addEventListener('click', () => elModalSettings.style.display = 'none');
   elBtnExportJson.addEventListener('click', exportCardsToJson);
   elBtnImportJson.addEventListener('change', importCardsFromJson);
-  elBtnResetDefault.addEventListener('click', resetToDefaults);
+  elBtnResetDefault.addEventListener('click', openResetConfirmModal);
+
+  // Модалка подтверждения сброса к каталогу
+  if (elBtnCloseResetConfirm) elBtnCloseResetConfirm.addEventListener('click', closeResetConfirmModal);
+  if (elBtnResetCancel) elBtnResetCancel.addEventListener('click', closeResetConfirmModal);
+  if (elBtnResetDownloadBackup) elBtnResetDownloadBackup.addEventListener('click', exportCardsToJson);
+  if (elBtnResetConfirmAction) elBtnResetConfirmAction.addEventListener('click', executeResetToCatalog);
 
   // Настройка скорости речи
   const elSpeechRateSlider = document.getElementById('speech-rate-slider');
@@ -1958,10 +2100,6 @@ function setupEventListeners() {
     elBtnTestSpeechRate.addEventListener('click', () => {
       fallbackSpeech('בָּרוּךְ אַתָּה יְ‑יָ אֱ‑לֹהֵינוּ מֶלֶךְ הָעוֹלָם');
     });
-  }
-
-  if (elBtnExportCatalog) {
-    elBtnExportCatalog.addEventListener('click', exportCatalogJson);
   }
 
   // Модалка массовой загрузки из таблицы
@@ -2009,7 +2147,7 @@ function setupEventListeners() {
   // Кнопка принудительного обновления и версия
   const elAppVersionBadge = document.getElementById('app-version-badge');
   if (elAppVersionBadge) {
-    elAppVersionBadge.textContent = 'v24';
+    elAppVersionBadge.textContent = 'v25';
   }
 
   const elBtnForceUpdateApp = document.getElementById('btn-force-update-app');
@@ -2044,12 +2182,14 @@ function setupEventListeners() {
   }
 
   // Закрытие по клику на фон
-  [elModalList, elModalForm, elModalSettings, elModalBulk].forEach(m => {
+  [elModalList, elModalForm, elModalSettings, elModalBulk, elModalResetConfirm].forEach(m => {
     if (!m) return;
     m.addEventListener('click', e => {
       if (e.target === m) {
         if (m === elModalBulk) {
           closeBulkImportModal();
+        } else if (m === elModalResetConfirm) {
+          closeResetConfirmModal();
         } else {
           m.style.display = 'none';
         }
@@ -2060,7 +2200,9 @@ function setupEventListeners() {
   // Клавиатура для компьютера (Стрелки влево/вправо и Пробел для переворота, Escape для закрытия окон)
   window.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
-      if (elModalBulk && elModalBulk.style.display === 'flex') {
+      if (elModalResetConfirm && elModalResetConfirm.style.display === 'flex') {
+        closeResetConfirmModal();
+      } else if (elModalBulk && elModalBulk.style.display === 'flex') {
         closeBulkImportModal();
       } else if (elModalForm && elModalForm.style.display === 'flex') {
         elModalForm.style.display = 'none';

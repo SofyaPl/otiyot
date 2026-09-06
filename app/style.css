@@ -1330,6 +1330,18 @@ body {
   color: #fee2e2;
 }
 
+.outline-muted-btn {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+.outline-muted-btn:hover, .outline-muted-btn:active {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+}
+
 /* Карточка информации о версии и обновление */
 .settings-version-card {
   margin-top: 14px;
