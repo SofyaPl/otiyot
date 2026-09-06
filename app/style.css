@@ -1265,49 +1265,60 @@ body {
 /* Карточка обратной связи / контактов */
 .settings-contact-card {
   margin-top: 14px;
-  padding: 12px 14px;
+  padding: 14px;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
 }
 
 .contact-header {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 7px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-secondary);
 }
 
 .contact-header svg {
-  color: var(--accent-light);
+  color: #34d399;
   flex-shrink: 0;
 }
 
 .contact-email-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  color: var(--accent-light);
+  justify-content: center;
+  gap: 8px;
+  color: #34d399;
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
-  width: fit-content;
+  padding: 7px 18px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 9999px;
   transition: all 0.2s ease;
   word-break: break-all;
+  margin: 2px auto;
 }
 
 .contact-email-link:hover, .contact-email-link:active {
-  color: #fff;
-  text-decoration: underline;
+  background: rgba(16, 185, 129, 0.18);
+  border-color: #10b981;
+  color: #6ee7b7;
+  text-decoration: none;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
 }
 
 .contact-email-link svg {
-  opacity: 0.7;
+  opacity: 0.85;
   flex-shrink: 0;
 }
 
