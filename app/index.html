@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Отиёт">
-  <link rel="manifest" href="manifest.json?v=1.27">
+  <link rel="manifest" href="manifest.json?v=1.28">
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=1.27">
+  <link rel="stylesheet" href="style.css?v=1.28">
 </head>
 <body>
   <div id="app" class="app-container">
@@ -353,20 +353,20 @@
               <div class="settings-section-title">Массовое добавление карточек & аудио</div>
               <button id="btn-open-bulk" class="btn outline-action-btn outline-gold-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-                <span>Загрузить из таблицы<br><span class="btn-subtext">(Excel / JSON / текст)</span></span>
+                <span>Загрузить из таблицы<br>(Excel / JSON / текст)</span>
               </button>
               <p class="settings-hint">Вставка ячеек из Excel / Google Таблиц, файла JSON или текста со ссылками на аудио</p>
 
               <label class="btn outline-action-btn outline-gold-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-                <span>Прикрепить MP3-файлы к карточкам (пачкой)</span>
+                <span>Прикрепить MP3-файлы<br>к карточкам (пачкой)</span>
                 <input type="file" id="input-settings-bulk-audio" multiple accept="audio/*" style="display:none;">
               </label>
               <p class="settings-hint">Выберите файлы (например: Моде ани.mp3, Шеаколь.mp3) — программа прикрепит их к карточкам по названию</p>
 
               <button id="btn-download-all-audio" class="btn outline-action-btn outline-gold-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                <span>Скачать аудио по ссылкам в память (офлайн)</span>
+                <span>Скачать аудио по ссылкам<br>в память (офлайн)</span>
               </button>
               <p class="settings-hint">Сохранит аудиозаписи из интернета прямо в память телефона для прослушивания без сети</p>
             </div>
@@ -393,13 +393,13 @@
               <div class="settings-section-title">Общий каталог молитв</div>
               <button id="btn-sync-repo" class="btn outline-action-btn outline-green-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-                <span>Обновить карточки из общего каталога</span>
+                <span>Обновить карточки<br>из общего каталога</span>
               </button>
               <p class="settings-hint">Загрузит новые официальные молитвы с сервера, сохраняя все ваши личные карточки</p>
 
               <button id="btn-reset-default" class="btn outline-action-btn outline-danger-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
-                <span>Сбросить всё к общему каталогу</span>
+                <span>Сбросить всё<br>к общему каталогу</span>
               </button>
               <p class="settings-hint" style="margin-bottom:0;">Удалит ваши изменения и вернет базу к исходному общему каталогу с сервера</p>
             </div>
@@ -414,7 +414,7 @@
           <div class="settings-version-card">
             <div class="settings-version-info">
               <span class="version-label">Текущая версия программы:</span>
-              <span class="version-badge" id="app-version-badge">v1.27</span>
+              <span class="version-badge" id="app-version-badge">v1.28</span>
             </div>
             <button type="button" id="btn-force-update-app" class="btn outline-action-btn outline-gold-btn">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
@@ -549,7 +549,7 @@
 
           <button type="button" id="btn-reset-confirm-action" class="btn outline-action-btn outline-danger-btn">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-            <span>Сбросить всё к общему каталогу</span>
+            <span>Сбросить всё<br>к общему каталогу</span>
           </button>
 
           <button type="button" id="btn-reset-cancel" class="btn outline-action-btn outline-muted-btn">
@@ -565,6 +565,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="app.js?v=1.27"></script>
+  <script src="app.js?v=1.28"></script>
 </body>
 </html>

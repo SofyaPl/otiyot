@@ -1299,18 +1299,18 @@ body {
   border: 1px solid var(--border-color);
   font-size: 14px;
   font-weight: 600;
-  padding: 12px 14px;
+  padding: 11px 14px;
   border-radius: var(--radius-md);
   width: 100%;
   justify-content: center;
+  align-items: center;
   gap: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
   box-sizing: border-box;
   display: inline-flex;
-  align-items: center;
   text-align: center;
-  min-height: 46px;
+  min-height: 48px;
   line-height: 1.35;
   user-select: none;
 }
@@ -1322,15 +1322,8 @@ body {
 .outline-action-btn span {
   text-align: center;
   display: inline-block;
-}
-
-.btn-subtext {
-  display: block;
-  font-size: 11px;
-  font-weight: 500;
-  opacity: 0.85;
-  line-height: 1.25;
-  margin-top: 2px;
+  width: max-content;
+  max-width: calc(100% - 28px);
 }
 
 .outline-gold-btn {
