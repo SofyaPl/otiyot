@@ -1,6 +1,7 @@
 /* Стили приложения "Отиёт" — Карточки Молитв и Благословений */
 
 :root {
+  color-scheme: dark;
   --bg-main: #121316;
   --bg-card: #1c1e24;
   --bg-card-back: #222630;
@@ -23,6 +24,34 @@
   --radius-sm: 8px;
 }
 
+/* ================= ТЕМНАЯ ПОЛОСА ПРОКРУТКИ ================= */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #3f4454 #16181f;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #16181f;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3f4454;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555b6e;
+}
+
+::-webkit-scrollbar-corner {
+  background: #16181f;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -39,30 +68,31 @@ button:focus-visible {
 
 html, body {
   height: 100%;
+  height: 100dvh;
+  width: 100%;
   margin: 0;
   padding: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
 }
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--bg-main);
   color: var(--text-primary);
-  min-height: 100vh;
-  min-height: 100dvh;
   display: flex;
   justify-content: center;
-  align-items: center;
-  overflow-x: hidden;
+  align-items: stretch;
+  overflow: hidden;
   user-select: none;
 }
 
 .app-container {
   width: 100%;
   max-width: 460px;
-  min-height: 580px;
-  height: 100vh;
+  height: 100%;
   height: 100dvh;
-  max-height: 860px;
   display: flex;
   flex-direction: column;
   background-color: var(--bg-main);
@@ -72,19 +102,31 @@ body {
 }
 
 @media (min-width: 600px) {
+  body {
+    align-items: center;
+  }
   .app-container {
     height: 92vh;
+    max-height: 860px;
     border-radius: 28px;
     border: 1px solid var(--border-color);
+  }
+  .card-face {
+    padding: 22px 20px;
+  }
+  .nav-control-btn {
+    width: 50px;
+    height: 50px;
   }
 }
 
 /* ================= ВЕРХНЯЯ ПАНЕЛЬ ================= */
 .top-bar {
+  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 18px;
+  padding: 12px 18px;
   border-bottom: 1px solid var(--border-color);
   background-color: rgba(18, 19, 22, 0.95);
   backdrop-filter: blur(10px);
@@ -146,9 +188,10 @@ body {
 
 /* ================= КАТЕГОРИИ (NAV) ================= */
 .categories-nav {
+  flex-shrink: 0;
   display: flex;
   gap: 8px;
-  padding: 10px 18px;
+  padding: 8px 18px;
   overflow-x: auto;
   scrollbar-width: none;
   border-bottom: 1px solid rgba(46, 50, 62, 0.5);
@@ -182,40 +225,41 @@ body {
 /* ================= ГЛАВНАЯ ОБЛАСТЬ (КАРТОЧКА) ================= */
 .main-gallery-area {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 18px 16px 18px;
+  padding: 8px 16px 12px 16px;
   position: relative;
   overflow: hidden;
 }
 
 .counter-badge {
+  flex-shrink: 0;
   font-size: 12px;
   font-weight: 600;
   color: var(--text-muted);
   letter-spacing: 0.5px;
-  margin-bottom: 6px;
+  margin-bottom: 2px;
 }
 
 /* 3D Сцена */
 .card-stage {
   width: 100%;
-  height: 480px;
-  min-height: 420px;
+  flex: 1;
+  min-height: 0;
   max-height: 560px;
   perspective: 1200px;
   display: flex;
   justify-content: center;
   align-items: stretch;
-  margin: 6px 0 12px 0;
+  margin: 4px 0 8px 0;
 }
 
 .flashcard {
   width: 100%;
   height: 100%;
-  min-height: 420px;
   position: relative;
   transform-style: preserve-3d;
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -294,7 +338,7 @@ body {
   width: 100%;
   height: 100%;
   border-radius: var(--radius-lg);
-  padding: 22px 20px;
+  padding: 18px 16px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -303,6 +347,8 @@ body {
   border: 1px solid var(--border-color);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #3b4050 transparent;
 }
 
 /* ЛИЦЕВАЯ СТОРОНА */
@@ -446,8 +492,8 @@ body {
 
 .hebrew-text {
   font-family: 'Frank Ruhl Libre', 'David', 'Times New Roman', serif;
-  font-size: 32px;
-  line-height: 1.55;
+  font-size: clamp(26px, 6.2vw, 32px);
+  line-height: 1.5;
   direction: rtl;
   color: #fff;
   letter-spacing: 0.5px;
@@ -538,16 +584,17 @@ body {
 
 /* ================= НИЖНЯЯ ПАНЕЛЬ НАВИГАЦИИ ================= */
 .gallery-controls {
+  flex-shrink: 0;
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 6px 10px;
+  padding: 2px 8px;
 }
 
 .nav-control-btn {
-  width: 50px;
-  height: 50px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
@@ -654,6 +701,27 @@ body {
   padding: 18px 20px;
   overflow-y: auto;
   user-select: text;
+  scrollbar-width: thin;
+  scrollbar-color: #3b4050 #1a1c23;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: #1a1c23;
+  border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: #3b4050;
+  border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: #52586d;
 }
 
 /* Список карточек */
@@ -1319,15 +1387,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
   font-size: 13px;
   font-weight: 600;
   color: var(--text-secondary);
-}
-
-.contact-header svg {
-  color: #34d399;
-  flex-shrink: 0;
 }
 
 /* Всплывающее уведомление (Toast) */

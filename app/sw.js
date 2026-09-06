@@ -1,5 +1,5 @@
 // Network-first Service Worker: всегда берет свежий код с сервера при наличии связи
-const CACHE_NAME = 'otiyot-dynamic-v23';
+const CACHE_NAME = 'otiyot-dynamic-v24';
 
 self.addEventListener('install', event => {
   self.skipWaiting();
