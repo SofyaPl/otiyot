@@ -614,6 +614,17 @@ function updateSpeechModeUI() {
       ? 'Тренировка<br><span style="white-space:nowrap;">(А&#8209;шем)</span>'
       : 'Молитва<br><span style="white-space:nowrap;">(Адонай)</span>';
   }
+
+  // Кнопка «Прослушать пример» и блок скорости речи в настройках
+  const elBtnTestSpeech = document.getElementById('btn-test-speech-rate');
+  if (elBtnTestSpeech) {
+    elBtnTestSpeech.className = `btn outline-action-btn ${isStudy ? 'outline-gold-btn' : 'outline-danger-btn'}`;
+  }
+
+  const elSpeechRateBox = document.querySelector('.speech-rate-box');
+  if (elSpeechRateBox) {
+    elSpeechRateBox.classList.toggle('prayer-mode', !isStudy);
+  }
 }
 
 function prepareHebrewForSpeech(text, mode = state.speechDivineMode) {
@@ -2157,7 +2168,7 @@ function setupEventListeners() {
   // Кнопка принудительного обновления и версия
   const elAppVersionBadge = document.getElementById('app-version-badge');
   if (elAppVersionBadge) {
-    elAppVersionBadge.textContent = 'v1.26';
+    elAppVersionBadge.textContent = 'v1.27';
   }
 
   const elBtnForceUpdateApp = document.getElementById('btn-force-update-app');
