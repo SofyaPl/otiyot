@@ -343,9 +343,19 @@ let previewAudioObj = null;
 let tempAudioData = '';
 let tempImageData = '';
 
+// Динамический расчет высоты экрана для надежного отображения на мобильных (Android/iOS)
+function updateAppHeight() {
+  const h = window.innerHeight;
+  document.documentElement.style.setProperty('--app-height', `${h}px`);
+}
+window.addEventListener('resize', updateAppHeight);
+window.addEventListener('orientationchange', updateAppHeight);
+updateAppHeight();
+
 // ================= ИНИЦИАЛИЗАЦИЯ И РЕНДЕРИНГ =================
 
 function init() {
+  updateAppHeight();
   renderCategories();
   renderCurrentCard();
   setupTouchSwipe();
@@ -2147,7 +2157,7 @@ function setupEventListeners() {
   // Кнопка принудительного обновления и версия
   const elAppVersionBadge = document.getElementById('app-version-badge');
   if (elAppVersionBadge) {
-    elAppVersionBadge.textContent = 'v25';
+    elAppVersionBadge.textContent = 'v1.26';
   }
 
   const elBtnForceUpdateApp = document.getElementById('btn-force-update-app');

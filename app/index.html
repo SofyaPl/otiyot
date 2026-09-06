@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Отиёт">
-  <link rel="manifest" href="manifest.json?v=25">
+  <link rel="manifest" href="manifest.json?v=1.26">
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=25">
+  <link rel="stylesheet" href="style.css?v=1.26">
 </head>
 <body>
   <div id="app" class="app-container">
@@ -53,8 +53,6 @@
     <!-- Главная область карточек (Галерея) -->
     <main class="main-gallery-area">
       
-      <div class="counter-badge" id="card-counter">1 из 6</div>
-
       <!-- Контейнер свайпа / 3D-сцена карточки -->
       <div class="card-stage" id="card-stage">
         <div class="flashcard" id="current-flashcard">
@@ -143,18 +141,21 @@
         </div>
       </div>
 
-      <!-- Нижняя панель навигации (Перелистывание) -->
+      <!-- Нижняя панель навигации (Перелистывание и счетчик) -->
       <div class="gallery-controls">
         <button id="btn-prev-card" class="nav-control-btn" title="Предыдущая (Свайп вправо)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
         </button>
 
-        <div class="dots-indicator" id="dots-indicator">
-          <!-- Точки заполняются скриптом -->
+        <div class="gallery-nav-center">
+          <div class="counter-badge" id="card-counter">1 из 10</div>
+          <div class="dots-indicator" id="dots-indicator">
+            <!-- Точки заполняются скриптом -->
+          </div>
         </div>
 
         <button id="btn-next-card" class="nav-control-btn" title="Следующая (Свайп влево)">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </button>
       </div>
 
@@ -413,25 +414,21 @@
           <div class="settings-version-card">
             <div class="settings-version-info">
               <span class="version-label">Текущая версия программы:</span>
-              <span class="version-badge" id="app-version-badge">v25</span>
+              <span class="version-badge" id="app-version-badge">v1.26</span>
             </div>
             <button type="button" id="btn-force-update-app" class="btn outline-action-btn outline-gold-btn">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
               <span>Загрузить свежее обновление</span>
             </button>
-            <p class="settings-hint" style="text-align: center; margin: 0;">Очищает кэш приложения и немедленно загружает последнюю версию с сервера</p>
+            <p class="settings-hint" style="text-align: left; margin: 0;">Очищает кэш приложения и немедленно загружает последнюю версию с сервера</p>
           </div>
 
-          <!-- Обратная связь и контакты (самый последний блок) -->
+          <!-- Обратная связь и контакты (аккуратный подвал) -->
           <div class="settings-contact-card">
             <div class="contact-header">
               <span>Связь с автором и предложения:</span>
             </div>
-            <a href="mailto:rubushkovasofya@yandex.ru" class="btn outline-action-btn outline-green-btn">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-              <span>rubushkovasofya@yandex.ru</span>
-            </a>
-            <p class="settings-hint" style="text-align: center; margin: 0;">Вопросы, пожелания, помощь с массовой загрузкой молитв или аудио</p>
+            <a href="mailto:rubushkovasofya@yandex.ru" class="contact-email-link">rubushkovasofya@yandex.ru</a>
           </div>
         </div>
       </div>
@@ -568,6 +565,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="app.js?v=25"></script>
+  <script src="app.js?v=1.26"></script>
 </body>
 </html>
