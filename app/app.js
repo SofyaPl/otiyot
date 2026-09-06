@@ -2009,7 +2009,7 @@ function setupEventListeners() {
   // Кнопка принудительного обновления и версия
   const elAppVersionBadge = document.getElementById('app-version-badge');
   if (elAppVersionBadge) {
-    elAppVersionBadge.textContent = 'v22';
+    elAppVersionBadge.textContent = 'v23';
   }
 
   const elBtnForceUpdateApp = document.getElementById('btn-force-update-app');
